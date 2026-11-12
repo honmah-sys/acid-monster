@@ -135,7 +135,8 @@
   .monsub{font-size:10.5px;color:var(--txt-dim);margin-top:2px;}
   .xpbar{height:4px;background:var(--bg);border-radius:4px;overflow:hidden;margin-top:4px;}
   .xpbar span{display:block;height:100%;background:linear-gradient(90deg,var(--amber),var(--gold));}
-  .monbtns{display:flex;flex-direction:column;gap:4px;}
+  .monbtns{display:flex;flex-direction:column;gap:4px;flex:0 0 auto;}
+  .monbtns .miniBtn{white-space:nowrap;}
   .miniBtn{font-family:inherit;font-size:11px;background:var(--panel2);color:var(--cyan);border:1px solid var(--line);border-radius:7px;padding:4px 8px;cursor:pointer;}
   .miniBtn:disabled{opacity:.4;cursor:default;}
   .dexGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:7px;}
@@ -1391,11 +1392,13 @@ function renderTab(n){
       <div class="moninfo"><div class="monname">${sp.name} <span class="tbadge" style="background:${TYPES[sp.type].color}22;border-color:${TYPES[sp.type].color};color:${TYPES[sp.type].color}">${TYPES[sp.type].name}</span></div>
         <div class="monsub">Lv${m.lv} ／ HP ${m.hp}/${m.maxhp} ／ 技: ${m.moves.map(k=>MOVES[k].name).join("・")}</div>
         <div class="xpbar"><span style="width:${m.exp/expToNext(m.lv)*100}%"></span></div></div>
-      <div class="monbtns">${i>0?`<button class="miniBtn" onclick="partyUp(${i})">▲</button>`:""}</div></div>`;});
-    if(state.box.length){h+=`<div class="sub" style="margin:8px 0 5px;">ボックス（控え・${state.box.length}体）</div>`;
+      <div class="monbtns">${i>0?`<button class="miniBtn" onclick="partyUp(${i})" title="順番を上げる">▲</button>`:""}<button class="miniBtn" onclick="partyToBox(${i})" ${state.party.length<=1?'disabled':''} title="ボックスへ預ける">預ける ▼</button></div></div>`;});
+    h+=`<div class="sub" style="margin:8px 0 5px;">ボックス（控え・${state.box.length}体）${state.party.length>=6?' ／ 手持ちが満員です。入れ替えるには手持ちを1体「預ける」':''}</div>`;
+    if(state.box.length){
       state.box.forEach((m,i)=>{const sp=SPECIES[m.sp];h+=`<div class="monrow box"><div class="monart">${monSVG(m.sp)}</div>
-        <div class="moninfo"><div class="monname">${sp.name}</div><div class="monsub">Lv${m.lv}</div></div>
-        <div class="monbtns"><button class="miniBtn" onclick="boxToParty(${i})" ${state.party.length>=6?'disabled':''}>→手持ち</button></div></div>`;});}
+        <div class="moninfo"><div class="monname">${sp.name} <span class="tbadge" style="background:${TYPES[sp.type].color}22;border-color:${TYPES[sp.type].color};color:${TYPES[sp.type].color}">${TYPES[sp.type].name}</span></div><div class="monsub">Lv${m.lv} ／ HP ${m.hp}/${m.maxhp}</div></div>
+        <div class="monbtns"><button class="miniBtn" onclick="boxToParty(${i})" ${state.party.length>=6?'disabled':''} title="${state.party.length>=6?'手持ちが満員':'手持ちに入れる'}">◀ 手持ちへ</button></div></div>`;});
+    } else { h+='<div class="empty" style="padding:8px;">ボックスは空です。捕まえたモンスターや、手持ちから預けた子がここに入ります。</div>'; }
     $id("mpanel-team").innerHTML=h||'<div class="empty">手持ちがいない</div>';
   }
   else if(n==="bag"){
@@ -1422,7 +1425,10 @@ function renderTab(n){
   }
 }
 function partyUp(i){const t=state.party[i];state.party.splice(i,1);state.party.splice(i-1,0,t);renderTab("team");saveState();}
-function boxToParty(i){if(state.party.length>=6)return;const m=state.box.splice(i,1)[0];state.party.push(m);renderTab("team");refresh();saveState();}
+function partyToBox(i){ if(state.party.length<=1){toast("最後の1体は預けられません");return;}
+  const m=state.party.splice(i,1)[0]; state.box.push(m); renderTab("team"); refresh(); saveState(); toast("📦 "+SPECIES[m.sp].name+" をボックスへ預けた"); }
+function boxToParty(i){ if(state.party.length>=6){toast("手持ちが満員です。先に手持ちを1体「預ける」");return;}
+  const m=state.box.splice(i,1)[0]; state.party.push(m); renderTab("team"); refresh(); saveState(); toast("🎒 "+SPECIES[m.sp].name+" を手持ちに入れた"); }
 
 /* 公式ノート */
 const NOTES=[
