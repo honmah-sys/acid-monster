@@ -502,13 +502,13 @@ const QUESTIONS = {
   ],
   /* --- pH 計算（生成） --- */
   ph_calc:[
-    {gen:()=>{const n=pick([1,2,3,4,5]);const r={correct:"pH = "+n,wrong:["pH = "+(n+1),"pH = "+(n-1||n+2),"pH = "+(14-n)]};
-      return {q:"[H⁺] = 1.0×10⁻"+n+" mol/L の水溶液のpHは？",correct:r.correct,wrong:r.wrong};}},
+    {gen:()=>{const n=pick([1,2,3,4,5]);const w=["pH = "+(n+1),"pH = "+(n+2),"pH = "+(14-n)];
+      return {q:"[H⁺] = 1.0×10⁻"+n+" mol/L の水溶液のpHは？",correct:"pH = "+n,wrong:w};}},
     {gen:()=>{const p=pick([2,3,4,5]);return {q:"pH = "+p+" の水溶液の [H⁺] は？",correct:"1.0×10⁻"+p+" mol/L",
       wrong:["1.0×10⁻"+(p+1)+" mol/L","1.0×10⁻"+(p-1)+" mol/L","1.0×10"+p+" mol/L"]};}},
-    {gen:()=>{const c=pick([1,2,3]);const conc=(c===1?"0.1":c===2?"0.01":"0.001");const p=c+1;
+    {gen:()=>{const c=pick([1,2,3]);const conc=(c===1?"0.1":c===2?"0.01":"0.001");const p=c; /* 0.1M→pH1, 0.01M→pH2, 0.001M→pH3 */
       return {q:conc+" mol/L の塩酸(HCl, 1価・完全電離)のpHは？",correct:"pH = "+p,
-      wrong:["pH = "+(p+1),"pH = "+(p-1),"pH = "+(14-p)]};}},
+      wrong:["pH = "+(p+1),"pH = "+(p+2),"pH = "+(14-p)]};}},
     {gen:()=>{const n=pick([9,10,11,12])-7;const pOH=14-(7+n);
       return {q:"[OH⁻] = 1.0×10⁻"+pOH+" mol/L の水溶液のpHは？",correct:"pH = "+(14-pOH),
       wrong:["pH = "+pOH,"pH = "+(14-pOH+1),"pH = "+(14-pOH-1)]};}},
@@ -614,8 +614,19 @@ const TRAINERS = [
    intro:"酸・塩基・中和・滴定――全てを修めし者よ。最後の試練を受けよ！", lose:"……完璧だ。君は酸塩基の真の理解者となった。"},
 ];
 
+/* 隠しボス: 全トレーナー撃破後に出現する最強の管理者 */
+const ADMIN_TRAINER = {
+  id:"t_admin", name:"Administrator", rank:99, color:"#f0566e", admin:true,
+  team:[{sp:"acidrake",lv:45},{sp:"baselith",lv:45},{sp:"titanova",lv:44},{sp:"phenox",lv:44},{sp:"ionlord",lv:43},{sp:"neuton",lv:43}],
+  intro:"ようこそ、塔の頂へ。全てを修めた君に、管理者権限をかけて挑もう。――全知識を、ここで示せ。",
+  lose:"……認証完了。君はこの塔の、真の管理者だ。おめでとう。"
+};
+
 const BOSS_LINES={};
 TRAINERS.forEach(t=>BOSS_LINES[t.id]={intro:t.intro,lose:t.lose});
+BOSS_LINES[ADMIN_TRAINER.id]={intro:ADMIN_TRAINER.intro,lose:ADMIN_TRAINER.lose};
+/* Administrator出現条件: CPUトレーナー全員を撃破済み */
+function adminUnlocked(){ return TRAINERS.every(t=>state.beaten.includes(t.id)); }
 
 </script>
 <script id="artScript">
@@ -862,7 +873,7 @@ function makeMon(spKey,lv){
     atk:statAt(sp.base.atk,lv),spd:statAt(sp.base.spd,lv)};
   return mon;
 }
-function expToNext(lv){return lv*lv*8+20;}
+function expToNext(lv){return Math.round(lv*lv*5+lv*10+15);}
 function recalcMon(m){const sp=SPECIES[m.sp];const r=m.hp/m.maxhp;
   m.maxhp=hpAt(sp.base.hp,m.lv);m.hp=Math.max(1,Math.round(m.maxhp*r));
   m.atk=statAt(sp.base.atk,m.lv);m.spd=statAt(sp.base.spd,m.lv);}
@@ -884,15 +895,15 @@ function buildAreas(){
    {name:"滴定の神殿", kind:"wild", wild:"area3", lvRange:[16,24],
     map:["##############","#.<..........#","#..GG...GG...#","#.G...TT..G..#","#.....TT.....#","#..GG.....GG.#","#..........H.#","#....GG......#","#.G.......G..#","#......>.....#","##############"]},
    {name:"対戦アリーナ", kind:"arena",
-    map:["##############","#.R........K.#","#..A.A.A.A.A.#","#............#","#.....VV.....#","#............#","#....<..S....#","#............#","##############"]},
+    map:["##############","#.R...Z....K.#","#..A.A.A.A.A.#","#............#","#.....VV.....#","#............#","#....<..S....#","#............#","##############"]},
   ];
 }
 const POS={};
 function resolvePositions(){
-  for(let ai=0;ai<AREAS.length;ai++){const A=AREAS[ai],map=A.map;let next=null,prev=null,heal=null,shop=null,reg=null,rank=null,versus=null;const arenas=[];
+  for(let ai=0;ai<AREAS.length;ai++){const A=AREAS[ai],map=A.map;let next=null,prev=null,heal=null,shop=null,reg=null,rank=null,versus=null,admin=null;const arenas=[];
     for(let y=0;y<map.length;y++)for(let x=0;x<map[0].length;x++){const c=map[y][x];
-      if(c===">")next={x,y}; if(c==="<")prev={x,y}; if(c==="H")heal={x,y}; if(c==="S")shop={x,y}; if(c==="A")arenas.push({x,y}); if(c==="R")reg={x,y}; if(c==="K")rank={x,y}; if(c==="V"&&(x===0||map[y][x-1]!=="V"))versus={x,y};}
-    POS[ai]={next,prev,heal,shop,arenas,reg,rank,versus};}
+      if(c===">")next={x,y}; if(c==="<")prev={x,y}; if(c==="H")heal={x,y}; if(c==="S")shop={x,y}; if(c==="A")arenas.push({x,y}); if(c==="R")reg={x,y}; if(c==="K")rank={x,y}; if(c==="V"&&(x===0||map[y][x-1]!=="V"))versus={x,y}; if(c==="Z")admin={x,y};}
+    POS[ai]={next,prev,heal,shop,arenas,reg,rank,versus,admin};}
 }
 function startTile(ai){const A=AREAS[ai],map=A.map;
   // プレイヤー初期位置: 入口(prev)か中央付近の空き
@@ -923,6 +934,9 @@ function drawTile(t,X,Y,x,y){
   else if(t==="R"){ctx.fillStyle="rgba(79,216,200,.22)";ctx.fillRect(X+3,Y+3,TILE-6,TILE-6);ctx.strokeStyle="#4fd8c8";ctx.lineWidth=2;ctx.strokeRect(X+3,Y+3,TILE-6,TILE-6);ctx.lineWidth=1;ctx.fillStyle="#4fd8c8";ctx.font="12px sans-serif";ctx.textAlign="center";ctx.fillText("📋",X+TILE/2,Y+TILE/2+4);}
   else if(t==="K"){ctx.fillStyle="rgba(240,198,74,.22)";ctx.fillRect(X+3,Y+3,TILE-6,TILE-6);ctx.strokeStyle="#f0c64a";ctx.lineWidth=2;ctx.strokeRect(X+3,Y+3,TILE-6,TILE-6);ctx.lineWidth=1;ctx.fillStyle="#f0c64a";ctx.font="12px sans-serif";ctx.textAlign="center";ctx.fillText("🏆",X+TILE/2,Y+TILE/2+4);}
   else if(t==="V"){ctx.fillStyle="rgba(240,106,154,.22)";ctx.fillRect(X,Y+3,TILE,TILE-6);ctx.strokeStyle="#f06a9a";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(X,Y+5);ctx.lineTo(X+TILE,Y+5);ctx.moveTo(X,Y+TILE-5);ctx.lineTo(X+TILE,Y+TILE-5);ctx.stroke();ctx.lineWidth=1;ctx.fillStyle="#f06a9a";ctx.font="13px sans-serif";ctx.textAlign="center";ctx.fillText("⚔",X+TILE/2,Y+TILE/2+4);}
+  else if(t==="Z"){ const on=(typeof adminUnlocked==="function")&&adminUnlocked();
+    if(on){const g=ctx.createRadialGradient(X+TILE/2,Y+TILE/2,2,X+TILE/2,Y+TILE/2,TILE/2);g.addColorStop(0,"rgba(240,86,110,.6)");g.addColorStop(1,"rgba(240,86,110,0)");ctx.fillStyle=g;ctx.fillRect(X,Y,TILE,TILE);ctx.strokeStyle="#f0566e";ctx.lineWidth=2;ctx.strokeRect(X+4,Y+4,TILE-8,TILE-8);ctx.lineWidth=1;ctx.fillStyle="#fff";ctx.font="12px sans-serif";ctx.textAlign="center";ctx.fillText("⚡",X+TILE/2,Y+TILE/2+4);}
+    else{ctx.fillStyle="#1a1420";ctx.fillRect(X+4,Y+4,TILE-8,TILE-8);ctx.strokeStyle="#3a2535";ctx.lineWidth=2;ctx.strokeRect(X+4,Y+4,TILE-8,TILE-8);ctx.lineWidth=1;ctx.fillStyle="#5a3545";ctx.font="11px sans-serif";ctx.textAlign="center";ctx.fillText("🔒",X+TILE/2,Y+TILE/2+4);} }
 }
 function drawMap(){ctx.clearRect(0,0,canvas.width,canvas.height);for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++)drawTile(MAP[y][x],x*TILE,y*TILE,x,y);}
 
@@ -938,6 +952,8 @@ function buildSprites(){clearSprites();const A=AREAS[state.area],rec=POS[state.a
     rec.arenas.forEach((a,i)=>{const t=opp.cpu[i];if(t){const beaten=state.beaten.includes(t.id);
       makeSprite("arena_"+i,trainerSVG(t.color||"#9a7cf0"),(beaten?"✓ ":"")+t.name,"trainer");place("arena_"+i,a.x,a.y);}});
     if(rec.versus){makeSprite("versus",signSVG("#f06a9a","⚔"),"自由対戦","obj");place("versus",rec.versus.x,rec.versus.y);}
+    if(rec.admin&&adminUnlocked()){const beaten=state.beaten.includes(ADMIN_TRAINER.id);
+      makeSprite("admin",trainerSVG(ADMIN_TRAINER.color),(beaten?"✓ ":"⚡ ")+ADMIN_TRAINER.name,"trainer");place("admin",rec.admin.x,rec.admin.y);}
     if(rec.shop){makeSprite("shop",shopSVG(),"補給ショップ","obj");place("shop",rec.shop.x,rec.shop.y);}
     if(rec.reg){makeSprite("reg",signSVG("#4fd8c8","📋"),"編成登録","obj");place("reg",rec.reg.x,rec.reg.y);}
     if(rec.rank){makeSprite("rank",signSVG("#f0c64a","🏆"),"ランキング","obj");place("rank",rec.rank.x,rec.rank.y);}
@@ -953,7 +969,7 @@ function camera(){let cx=state.px*TILE+TILE/2-VW/2,cy=state.py*TILE+TILE/2-VH/2;
 const mm=$id("minimap"),mmx=mm.getContext("2d");
 function drawMinimap(){const sx=mm.width/COLS,sy=mm.height/ROWS;mmx.clearRect(0,0,mm.width,mm.height);
   for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){const t=MAP[y][x];let c="#0c1626";
-    if(t==="#")c="#14203c";else if(t==="G")c="#2e6a44";else if(t==="T")c="#145a3a";else if(t===">"||t==="<")c="#f0b73a";else if(t==="H")c="#7fe0a0";else if(t==="A")c="#9a7cf0";else if(t==="S")c="#f0b73a";else if(t==="R")c="#4fd8c8";else if(t==="K")c="#f0c64a";else if(t==="V")c="#f06a9a";
+    if(t==="#")c="#14203c";else if(t==="G")c="#2e6a44";else if(t==="T")c="#145a3a";else if(t===">"||t==="<")c="#f0b73a";else if(t==="H")c="#7fe0a0";else if(t==="A")c="#9a7cf0";else if(t==="S")c="#f0b73a";else if(t==="R")c="#4fd8c8";else if(t==="K")c="#f0c64a";else if(t==="V")c="#f06a9a";else if(t==="Z")c=(typeof adminUnlocked==="function"&&adminUnlocked())?"#f0566e":"#3a2535";
     mmx.fillStyle=c;mmx.fillRect(x*sx,y*sy,Math.ceil(sx),Math.ceil(sy));}
   mmx.fillStyle="#fff";mmx.fillRect(state.px*sx,state.py*sy,Math.ceil(sx)+1,Math.ceil(sy)+1);}
 
@@ -1009,6 +1025,9 @@ function tryMove(dx,dy){
   if(A.kind==="arena"){
     const ai=rec.arenas.findIndex(a=>a.x===nx&&a.y===ny);
     if(ai>=0){const opp=loadOpponents();const t=opp.cpu[ai];if(t){challengeTrainer(t);return;}}
+    if(rec.admin&&rec.admin.x===nx&&rec.admin.y===ny){
+      if(!adminUnlocked()){toast("🔒 5人のトレーナー全員を倒すと現れる…");sfx("miss");return;}
+      challengeTrainer(ADMIN_TRAINER);return;}
     if(rec.versus&&(rec.versus.x===nx||rec.versus.x+1===nx)&&rec.versus.y===ny){openVersus();return;}
     if(rec.shop&&rec.shop.x===nx&&rec.shop.y===ny){openShop();return;}
     if(rec.reg&&rec.reg.x===nx&&rec.reg.y===ny){openRegister();return;}
@@ -1177,7 +1196,7 @@ function foeFainted(){
   sfx("faint");const foe=B.foe,my=myMon();
   log('<span class="sys">💥 </span>'+(B.type==="trainer"?"相手の":"野生の")+SPECIES[foe.sp].name+'を倒した！');
   // 経験値
-  const gain=Math.round(SPECIES[foe.sp].base.hp*0.4+foe.lv*4);
+  const gain=Math.round(SPECIES[foe.sp].base.hp*0.6+foe.lv*7+10);
   grantExp(my,gain);
   const gold=Math.round(foe.lv*6+ri(3,8));state.gold+=gold;
   if(B.type==="trainer"){
@@ -1191,7 +1210,9 @@ function foeFainted(){
 }
 function winTrainer(){
   const t=B.trainer;
+  const isAdmin=(t.id==="t_admin");
   if(t.player){ toast("🏅 "+t.name+"の編成に勝利！"); } // 自由対戦: バッジ対象外、何度でも挑める
+  else if(isAdmin){ if(!state.beaten.includes(t.id)){state.beaten.push(t.id);} toast("⚡ <b>Administrator を撃破！</b> 塔の真の管理者だ！"); }
   else if(!state.beaten.includes(t.id)){state.beaten.push(t.id);
     if(!state.badges.includes(t.id)){state.badges.push(t.id);}toast("🏅 バッジ獲得！ "+t.name+"を倒した！");
   }
@@ -1200,9 +1221,12 @@ function winTrainer(){
   if(t && t.id && !t.player) bumpCpuRecord(t.id, true);
   sfx("win");saveState();
   const lose=t.player?(t.lose||"参った！"):(BOSS_LINES[t.id]?BOSS_LINES[t.id].lose:"参った！");
-  // ランク5(博士)撃破でエンディング
+  // ランク5(博士)撃破で通常エンディング。Administrator撃破で真エンディング。
   const isFinal=(t.id==="t_dr");
-  endBattle(()=>{startDialogue(t.name,t.color||"#9a7cf0",[lose],()=>{ if(isFinal&&!state.flags.ending){state.flags.ending=true;playEnding();} });});
+  endBattle(()=>{startDialogue(t.name,t.color||"#9a7cf0",[lose],()=>{
+    if(isAdmin&&!state.flags.endingAdmin){state.flags.endingAdmin=true;playEnding(true);}
+    else if(isFinal&&!state.flags.ending){state.flags.ending=true;playEnding();}
+  });});
 }
 function afterMyFaint(){
   sfx("faint");log(SPECIES[myMon().sp].name+'は倒れた…');
@@ -1279,23 +1303,39 @@ function endBattle(after){$id("battle").style.display="none";$id("battle").class
   const A=AREAS[state.area];playMusic(A.kind==="arena"?"arena":"field");B=null;refresh();drawMinimap();if(after)after();}
 
 /* ===== エンディング ===== */
-function playEnding(){
-  const lines=[`<div class="edArt">${monSVG(state.party[0]?state.party[0].sp:'acidrake')}</div>`,
-   `<h2>酸塩基マスターへの道 ― CLEAR</h2>`,
-   `<div class="edLine">あなたは酸と塩基、pH、中和と塩、そして中和滴定の試練を越え、</div>`,
-   `<div class="edLine">酸塩基博士サワーを打ち倒した。</div>`,
-   `<div class="edLine edDim">H⁺とOH⁻がせめぎ合い、指示薬が色を変え、ビュレットが中和点を刻む――</div>`,
-   `<div class="edLine edDim">酸と塩基の世界は、いまあなたのものだ。</div>`,
-   `<div class="edHead">― 獲得したバッジ ―</div>`,
-   ...TRAINERS.map(t=>`<div class="edLine edDim">${state.beaten.includes(t.id)?'🏅':'▫'} ${t.name}</div>`),
-   `<div class="edHead">― 冒険の記録 ―</div>`,
-   `<div class="edLine">図鑑登録 <b style="color:var(--cyan)">${state.dex.length}</b> / ${Object.keys(SPECIES).length}</div>`,
-   `<div class="edLine">最強の相棒 <b style="color:var(--amber)">${state.party[0]?SPECIES[state.party[0].sp].name+" Lv"+state.party[0].lv:"―"}</b></div>`,
-   `<div class="edHead">― STAFF ―</div>`,
-   `<div class="edLine edDim">企画・原案　あなた</div>`,`<div class="edLine edDim">化学監修　化学基礎（酸と塩基）</div>`,`<div class="edLine edDim">制作協力　Claude</div>`,
-   `<div class="edLine" style="color:var(--cyan);margin-top:14px">あなたの編成は「対戦アリーナ」に登録された。</div>`,
-   `<div class="edLine edDim">クラスメイトの挑戦を待とう！</div>`,
-   `<div class="edLine" style="margin:22px 0;font-size:18px;color:var(--amber)">★ THANK YOU FOR PLAYING ★</div>`];
+function playEnding(admin){
+  let lines;
+  if(admin){
+    lines=[`<div class="edArt">${monSVG(state.party[0]?state.party[0].sp:'acidrake')}</div>`,
+     `<h2 style="color:var(--rose)">TRUE CLEAR ― 塔の管理者</h2>`,
+     `<div class="edLine">5人のトレーナーを退け、さらに最強の<b>Administrator</b>をも打ち倒した。</div>`,
+     `<div class="edLine edDim">酸と塩基、pH、中和、滴定――その全てを極めた者だけが到達できる頂。</div>`,
+     `<div class="edLine" style="color:var(--rose);margin-top:8px">あなたはこの塔の、真の管理者となった。</div>`,
+     `<div class="edHead">― 倒したトレーナー ―</div>`,
+     ...TRAINERS.map(t=>`<div class="edLine edDim">🏅 ${t.name}</div>`),
+     `<div class="edLine edDim" style="color:var(--rose)">⚡ Administrator</div>`,
+     `<div class="edHead">― 冒険の記録 ―</div>`,
+     `<div class="edLine">図鑑登録 <b style="color:var(--cyan)">${state.dex.length}</b> / ${Object.keys(SPECIES).length}</div>`,
+     `<div class="edLine">通算成績 <b style="color:var(--amber)">${state.wins||0}勝 ${state.losses||0}敗</b></div>`,
+     `<div class="edLine">最強の相棒 <b style="color:var(--amber)">${state.party[0]?SPECIES[state.party[0].sp].name+" Lv"+state.party[0].lv:"―"}</b></div>`,
+     `<div class="edLine" style="margin:22px 0;font-size:18px;color:var(--rose)">★ CONGRATULATIONS ★</div>`];
+  } else {
+    lines=[`<div class="edArt">${monSVG(state.party[0]?state.party[0].sp:'acidrake')}</div>`,
+     `<h2>酸塩基マスターへの道 ― CLEAR</h2>`,
+     `<div class="edLine">あなたは酸と塩基、pH、中和と塩、そして中和滴定の試練を越え、</div>`,
+     `<div class="edLine">酸塩基博士サワーを打ち倒した。</div>`,
+     `<div class="edLine edDim">H⁺とOH⁻がせめぎ合い、指示薬が色を変え、ビュレットが中和点を刻む――</div>`,
+     `<div class="edLine edDim">酸と塩基の世界は、いまあなたのものだ。</div>`,
+     `<div class="edHead">― 獲得したバッジ ―</div>`,
+     ...TRAINERS.map(t=>`<div class="edLine edDim">${state.beaten.includes(t.id)?'🏅':'▫'} ${t.name}</div>`),
+     `<div class="edHead">― 冒険の記録 ―</div>`,
+     `<div class="edLine">図鑑登録 <b style="color:var(--cyan)">${state.dex.length}</b> / ${Object.keys(SPECIES).length}</div>`,
+     `<div class="edLine">最強の相棒 <b style="color:var(--amber)">${state.party[0]?SPECIES[state.party[0].sp].name+" Lv"+state.party[0].lv:"―"}</b></div>`,
+     `<div class="edLine" style="color:var(--rose);margin-top:10px">…だが、アリーナの奥に封印が解けた気配。<b>⚡の間</b>へ向かえ。</div>`,
+     `<div class="edLine" style="color:var(--cyan);margin-top:10px">あなたの編成は「対戦アリーナ」に登録された。</div>`,
+     `<div class="edLine edDim">クラスメイトの挑戦を待とう！</div>`,
+     `<div class="edLine" style="margin:22px 0;font-size:18px;color:var(--amber)">★ THANK YOU FOR PLAYING ★</div>`];
+  }
   $id("edScroll").innerHTML=lines.join("");const ed=$id("ending");ed.classList.add("show");
   requestAnimationFrame(()=>ed.classList.add("run"));setTimeout(()=>{$id("edClose").style.display="block";},5000);
   saveMyTeam();
