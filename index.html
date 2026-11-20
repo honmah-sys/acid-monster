@@ -1,208 +1,416 @@
 <!DOCTYPE html>
-<html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- saved from url=(0059)file:///C:/Users/honmah/Downloads/acid_monster47%20(1).html -->
+<html lang="ja"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#5cc8ff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<!-- 丸ゴシック（読み込めない環境ではヒラギノ丸ゴ等の端末フォントで表示） -->
+<link rel="preconnect" href="https://fonts.googleapis.com/"><link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800&display=swap" rel="stylesheet">
 <title>アシッドモンスター ― Acid Monster</title>
 <style>
+  /* =========================================================
+     ポップデザイン ＋ レスポンシブ
+     ・タブレット横（最優先）: 上=HUD / 左=ステージ（マップ・バトル）/ 右=ログ＋十字キー
+     ・スマホ縦・タブレット縦: 上=HUD / 中=ステージ / 下=ログ＋十字キー
+     ・ステージ内のバトルは container query でステージ幅に応じて2列⇔1列
+     ========================================================= */
   :root{
-    --bg:#070f1a; --bg2:#0a1524; --panel:#101d33; --panel2:#16263f;
-    --line:#253a5c; --txt:#dbe7f5; --txt-dim:#8698b8;
-    --cyan:#4fd8c8; --amber:#f0b73a; --violet:#9a7cf0; --rose:#f06a9a;
-    --lime:#7fe0a0; --danger:#f0566e; --gold:#f0c64a;
-    --glow:0 0 14px rgba(79,216,200,.5);
+    --ink:#2a2350; --ink2:#4a4378;
+    --bg:#fff8e7; --bg2:#fff0c8; --panel:#ffffff; --panel2:#f4f1ff; --soft:#e7e2f7;
+    --line:#2a2350; --txt:#2a2350; --txt-dim:#6d6894;
+    --cyan:#0a9fb4; --amber:#ef8700; --violet:#7b5cf0; --rose:#ff4f8b;
+    --lime:#1fae58; --danger:#ff4d5e; --gold:#d99a00; --sun:#ffd23f; --sky:#5cc8ff; --mint:#5ee08a;
+    --glow:0 0 0 3px rgba(123,92,240,.28);
+    --pop:0 5px 0 var(--ink); --pop-sm:0 3px 0 var(--ink);
+    --bw:3px; --r:18px;
+    --ol:1.6px;
+    --outline:drop-shadow(var(--ol) 0 0 var(--ink)) drop-shadow(calc(var(--ol)*-1) 0 0 var(--ink)) drop-shadow(0 var(--ol) 0 var(--ink)) drop-shadow(0 calc(var(--ol)*-1) 0 var(--ink));
+    --font:"M PLUS Rounded 1c","Hiragino Maru Gothic ProN","ヒラギノ丸ゴ ProN","BIZ UDPGothic","Yu Gothic UI","Meiryo",system-ui,sans-serif;
+    --fs:clamp(13px,0.55vw + 9px,16px);
+    --side:clamp(232px,27vw,340px);
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   html,body{height:100%;}
-  body{background:var(--bg);color:var(--txt);font-family:"Segoe UI","Helvetica Neue",system-ui,sans-serif;
-    display:flex;align-items:center;justify-content:center;min-height:100vh;padding:10px;
-    background-image:radial-gradient(circle at 15% 10%,rgba(79,216,200,.10),transparent 42%),radial-gradient(circle at 85% 90%,rgba(154,124,240,.09),transparent 42%),linear-gradient(var(--bg2),#040a12);}
-  #app{width:100%;max-width:580px;position:relative;border:1px solid var(--line);border-radius:16px;background:linear-gradient(var(--bg2),var(--bg));overflow:hidden;box-shadow:0 0 0 1px rgba(79,216,200,.08),0 18px 50px rgba(0,0,0,.65);}
-  header{padding:9px 13px;border-bottom:1px solid var(--line);background:linear-gradient(rgba(79,216,200,.05),transparent);}
-  .titleRow{display:flex;justify-content:space-between;align-items:center;gap:8px;}
-  .brand{display:flex;align-items:center;gap:8px;}
-  .brand .logo{width:26px;height:26px;}
-  .brand .logo svg{width:26px;height:26px;}
-  .title{font-size:12.5px;font-weight:700;letter-spacing:.5px;background:linear-gradient(90deg,var(--cyan),var(--amber));-webkit-background-clip:text;background-clip:text;color:transparent;}
-  .hbtns{display:flex;gap:6px;}
-  .iconBtn{font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;background:var(--panel);color:var(--cyan);border:1px solid var(--line);border-radius:8px;padding:5px 11px;transition:.15s;}
-  .iconBtn:hover{border-color:var(--cyan);box-shadow:var(--glow);}
-  .stats{display:flex;gap:6px;flex-wrap:wrap;font-size:11px;margin-top:8px;align-items:center;}
-  .chip{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:3px 10px;display:flex;gap:4px;align-items:center;}
+  body{font-family:var(--font);font-size:var(--fs);color:var(--txt);overflow:hidden;
+    background-color:var(--sky);
+    background-image:radial-gradient(rgba(255,255,255,.45) 2px,transparent 2.6px),linear-gradient(160deg,#68d0ff 0%,#a6ebff 50%,#ffd3ea 100%);
+    background-size:28px 28px,100% 100%;
+    -webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;touch-action:manipulation;}
+  button{font-family:inherit;color:inherit;touch-action:manipulation;-webkit-user-select:none;user-select:none;}
+  b{font-weight:800;}
+
+  /* ---------- 全体レイアウト ---------- */
+  #app{position:fixed;inset:0;margin:auto;max-width:1440px;display:grid;gap:10px;
+    padding:max(8px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));
+    grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto;grid-template-areas:"hud" "stage" "side";
+    -webkit-user-select:none;user-select:none;}
+  /* 横画面（タブレット横・PC・大きめのスマホ横） */
+  @media (orientation:landscape) and (min-width:700px){
+    #app{grid-template-columns:minmax(0,1fr) var(--side);grid-template-rows:auto minmax(0,1fr);grid-template-areas:"hud hud" "stage side";}
+  }
+  .card{background:var(--panel);border:var(--bw) solid var(--ink);border-radius:var(--r);box-shadow:var(--pop);}
+
+  /* ---------- HUD ---------- */
+  #hud{grid-area:hud;display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;padding:6px 10px;}
+  .brand{display:flex;align-items:center;gap:6px;flex:0 0 auto;}
+  .brand .logo,.brand .logo svg{width:36px;height:36px;display:block;}
+  .brand .logo svg{filter:var(--outline);}
+  .title{font-size:1.15em;font-weight:800;letter-spacing:.5px;color:var(--rose);text-shadow:2px 2px 0 var(--sun);white-space:nowrap;}
+  .stats{display:flex;gap:6px;align-items:center;font-size:.9em;flex:1 1 auto;min-width:0;overflow-x:auto;scrollbar-width:none;order:2;}
+  .stats::-webkit-scrollbar{display:none;}
+  .chip{flex:0 0 auto;background:var(--bg);border:2px solid var(--ink);border-radius:999px;padding:3px 11px;display:flex;gap:5px;align-items:center;font-weight:700;white-space:nowrap;}
   .chip b{color:var(--cyan);} .chip.gold b{color:var(--gold);}
   .leadwrap{display:flex;align-items:center;gap:6px;}
-  .leadbar{height:7px;width:90px;background:var(--bg);border-radius:6px;overflow:hidden;border:1px solid var(--line);}
-  .leadfill{height:100%;background:linear-gradient(90deg,var(--lime),var(--cyan));transition:width .25s;border-radius:6px;}
+  .leadbar{height:10px;width:84px;background:#eee;border-radius:999px;overflow:hidden;border:2px solid var(--ink);}
+  .leadfill{display:block;height:100%;background:var(--lime);transition:width .25s;}
+  .leadfill.mid,.hpline span.mid{background:var(--sun);} .leadfill.low,.hpline span.low{background:var(--danger);}
+  .hbtns{display:flex;gap:6px;margin-left:auto;order:3;}
+  .iconBtn{font-size:.95em;font-weight:800;cursor:pointer;background:var(--sun);color:var(--ink);border:2px solid var(--ink);border-radius:999px;padding:6px 14px;min-height:40px;min-width:44px;box-shadow:var(--pop-sm);transition:transform .08s,box-shadow .08s;}
+  .iconBtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink);}
+  @media (orientation:portrait),(max-width:699px){
+    .stats{order:4;flex-basis:100%;}
+  }
+  @media (orientation:landscape) and (min-width:700px){ .stats{flex:1 1 0;} }
+  @media (orientation:portrait) and (min-width:600px){ .dpad{--dk:60px;} #log{max-height:12em;} }
 
-  #viewport{position:relative;overflow:hidden;margin:11px auto;width:520px;height:340px;max-width:100%;border:1px solid var(--line);border-radius:12px;background:#060d18;}
-  #world{position:absolute;left:0;top:0;will-change:transform;}
-  #world canvas{display:block;image-rendering:pixelated;}
-  .wsprite{position:absolute;width:34px;height:34px;z-index:2;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5));}
-  .wsprite svg{display:block;width:34px;height:34px;}
+  /* ---------- ステージ ---------- */
+  #stage{grid-area:stage;position:relative;min-height:0;overflow:hidden;container-type:size;container-name:stage;background:#b8ec9a;}
+  #viewport{position:absolute;inset:0;overflow:hidden;touch-action:none;cursor:pointer;}
+  #world{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform;transition:transform .15s linear;}
+  #world canvas{display:block;}
+  .snap,.snap *{transition:none!important;}
+  .wsprite{position:absolute;width:34px;height:34px;z-index:2;transition:left .15s linear,top .15s linear;pointer-events:none;}
+  .wsprite svg{display:block;width:34px;height:34px;filter:var(--outline);--ol:1px;}
   .wsprite.trainer svg{width:34px;height:40px;}
-  .bob{animation:bob 1.8s ease-in-out infinite;}
+  .wsprite::before{content:"";position:absolute;left:6px;right:6px;bottom:-9px;height:6px;border-radius:50%;background:rgba(42,35,80,.25);}
+  .wsprite.trainer::before{bottom:-14px;}
+  .wsprite.lblLow .wname{top:auto;bottom:-24px;z-index:3;}
+  .bob svg{animation:bob 1.6s ease-in-out infinite;}
   @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
-  .wname{position:absolute;font-size:9px;color:var(--txt);background:rgba(7,15,26,.9);border:1px solid var(--line);border-radius:5px;padding:1px 5px;white-space:nowrap;transform:translateX(-50%);left:17px;top:-13px;}
-  #minimap{position:absolute;right:8px;top:8px;z-index:6;border:1px solid var(--line);border-radius:6px;background:rgba(7,15,26,.85);image-rendering:pixelated;}
-  #areaName{position:absolute;left:8px;top:8px;z-index:6;font-size:11px;font-weight:600;color:var(--cyan);background:rgba(7,15,26,.82);border:1px solid var(--line);border-radius:6px;padding:3px 9px;}
+  .wname{position:absolute;font-size:9px;font-weight:800;color:var(--ink);background:#fff;border:1.5px solid var(--ink);border-radius:999px;padding:0 6px;white-space:nowrap;transform:translateX(-50%);left:17px;top:-15px;}
+  #minimap{position:absolute;right:10px;top:10px;z-index:6;width:clamp(86px,13cqw,140px);height:auto;border:2px solid var(--ink);border-radius:10px;background:#fff;box-shadow:var(--pop-sm);pointer-events:none;}
+  #areaName{position:absolute;left:10px;top:10px;z-index:6;font-size:.95em;font-weight:800;color:var(--ink);background:#fff;border:2px solid var(--ink);border-radius:999px;padding:4px 14px;box-shadow:var(--pop-sm);pointer-events:none;}
 
-  #dialogue{display:none;position:absolute;left:10px;right:10px;bottom:10px;z-index:8;background:rgba(16,29,51,.97);border:1px solid var(--cyan);border-radius:12px;box-shadow:var(--glow);}
+  /* ---------- 会話 ---------- */
+  #dialogue{display:none;position:absolute;left:12px;right:12px;bottom:12px;z-index:8;background:#fff;border:var(--bw) solid var(--ink);border-radius:var(--r);box-shadow:var(--pop);cursor:pointer;max-width:860px;margin:0 auto;animation:popIn .18s ease-out;}
   #dialogue.show{display:flex;}
-  .portrait{flex:0 0 70px;border-right:1px solid var(--line);background:var(--panel2);display:flex;align-items:flex-end;justify-content:center;overflow:hidden;border-radius:12px 0 0 12px;}
-  .portrait svg{width:70px;height:84px;}
-  .dlgBody{flex:1;padding:9px 12px;}
-  .dlgName{color:var(--cyan);font-size:12px;font-weight:700;margin-bottom:4px;}
-  .dlgText{font-size:12.5px;line-height:1.7;min-height:46px;}
-  .dlgHint{font-size:10px;color:var(--txt-dim);text-align:right;margin-top:4px;}
+  .portrait{flex:0 0 clamp(64px,10cqw,96px);border-right:var(--bw) solid var(--ink);background:var(--bg2);display:flex;align-items:flex-end;justify-content:center;overflow:hidden;border-radius:calc(var(--r) - 3px) 0 0 calc(var(--r) - 3px);}
+  .portrait svg{width:100%;height:auto;display:block;}
+  .dlgBody{flex:1;padding:14px 16px 10px;position:relative;min-width:0;}
+  .dlgName{position:absolute;top:-16px;left:14px;color:#fff;background:var(--violet);border:2px solid var(--ink);border-radius:999px;padding:2px 14px;font-size:.92em;font-weight:800;}
+  .dlgText{font-size:1.05em;line-height:1.75;min-height:3.5em;font-weight:500;}
+  .dlgHint{font-size:.78em;color:var(--txt-dim);text-align:right;margin-top:2px;animation:blink 1s steps(2) infinite;}
+  @keyframes blink{50%{opacity:.25}}
+  @keyframes popIn{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
 
-  /* battle */
-  #battle{display:none;padding:12px;}
-  #battle.trainer{background:radial-gradient(circle at 50% 20%,rgba(154,124,240,.12),transparent 60%);}
-  .bfield{display:flex;flex-direction:column;gap:6px;}
+  /* ---------- 右（下）カラム: ログ＋操作 ---------- */
+  #side{grid-area:side;display:flex;gap:10px;min-height:0;align-items:stretch;}
+  #log{flex:1 1 auto;min-width:0;padding:10px 14px;font-size:.95em;line-height:1.65;color:var(--txt);overflow:auto;max-height:9.5em;}
+  #log .sys{color:var(--violet);font-weight:800;}
+  #log b{color:var(--rose);}
+  #controls{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;}
+  .dpad{display:grid;grid-template-columns:repeat(3,var(--dk));grid-template-rows:repeat(3,var(--dk));gap:4px;--dk:46px;}
+  .dpad button{font-size:1.4em;font-weight:800;background:#fff;color:var(--ink);border:var(--bw) solid var(--ink);border-radius:14px;cursor:pointer;box-shadow:var(--pop-sm);transition:transform .06s,box-shadow .06s,background .06s;}
+  .dpad button:active,.dpad button.on{transform:translateY(2px);box-shadow:0 1px 0 var(--ink);background:var(--sun);}
+  .dpad .spacer{visibility:hidden;}
+  .dpad .hub{border-radius:50%;background:var(--soft);border:var(--bw) solid var(--ink);margin:8px;}
+  .keyhint{font-size:.72em;color:var(--txt-dim);text-align:center;line-height:1.5;}
+  @media (hover:none){.keyhint{display:none;}}
+  @media (orientation:landscape) and (min-width:700px){
+    #side{flex-direction:column;}
+    #log{max-height:none;flex:1 1 auto;}
+    #controls{padding:12px 6px;}
+    .dpad{--dk:clamp(52px,6.2vw,72px);}
+  }
+  /* バトル中は十字キーを隠す */
+  #app.battling #controls{display:none;}
+  @media (orientation:portrait),(max-width:699px){ #app.battling #log{max-height:5.2em;} }
+
+  /* ---------- バトル ---------- */
+  #battle{display:none;position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain;
+    background:linear-gradient(#a9e7ff 0%,#d8f6ff 46%,#bdeb94 46%,#a6df7e 100%);}
+  #battle.trainer{background:linear-gradient(#d9c9ff 0%,#f3e9ff 46%,#ffc8de 46%,#ffb3d0 100%);}
+  .battleInner{min-height:100%;display:grid;gap:12px;padding:12px;grid-template-columns:minmax(0,1fr);align-content:start;}
+  @container stage (min-width:640px){
+    .battleInner{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);align-content:stretch;align-items:center;padding:16px;gap:16px;}
+  }
+  .bfield{display:flex;flex-direction:column;gap:8px;justify-content:space-around;min-height:100%;}
   .brow{display:flex;align-items:center;gap:10px;}
-  .brow.foe{flex-direction:row;}
-  .brow.me{flex-direction:row-reverse;}
-  .bart{width:96px;height:96px;flex:0 0 96px;display:flex;align-items:center;justify-content:center;}
-  .bart svg{width:88px;height:88px;filter:drop-shadow(0 0 10px rgba(79,216,200,.3));}
-  .bart.hit{animation:shake .3s;}
-  @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
-  .bcard{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 11px;}
-  .bcard .bname{font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;justify-content:space-between;}
-  .bcard .blv{font-size:11px;color:var(--txt-dim);}
-  .tbadge{font-size:9px;padding:1px 7px;border-radius:10px;border:1px solid;font-weight:700;}
-  .hpline{height:9px;background:var(--bg);border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-top:6px;}
-  .hpline span{display:block;height:100%;background:linear-gradient(90deg,var(--lime),var(--cyan));transition:width .35s;}
-  .foe .hpline span{background:linear-gradient(90deg,var(--danger),var(--rose));}
-  .hptxt{font-size:10px;color:var(--txt-dim);margin-top:2px;}
-  .xpline{height:4px;background:var(--bg);border-radius:4px;overflow:hidden;margin-top:4px;}
-  .xpline span{display:block;height:100%;background:linear-gradient(90deg,var(--amber),var(--gold));transition:width .35s;}
-  .bmid{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--txt-dim);margin:4px 2px;}
-  .combo{color:var(--amber);font-weight:700;}
-  .partyDots{display:flex;gap:4px;}
-  .pdot{width:9px;height:9px;border-radius:50%;background:var(--lime);border:1px solid var(--line);}
-  .pdot.ko{background:#3a4660;} .pdot.cur{box-shadow:0 0 0 2px var(--cyan);}
-  #battleMenu{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:4px;}
-  .mvBtn{font-family:inherit;text-align:left;background:var(--panel2);color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:9px 11px;cursor:pointer;transition:.12s;display:flex;flex-direction:column;gap:2px;}
-  .mvBtn:hover:not(:disabled){border-color:var(--cyan);box-shadow:var(--glow);}
-  .mvBtn:disabled{opacity:.4;cursor:default;}
-  .mvBtn b{font-size:12.5px;} .mvmeta{font-size:10px;color:var(--txt-dim);}
-  .cmdRow{grid-column:1/3;display:flex;gap:7px;}
-  .cmdBtn{flex:1;font-family:inherit;font-size:12px;background:var(--panel);color:var(--cyan);border:1px solid var(--line);border-radius:9px;padding:9px;cursor:pointer;}
-  .cmdBtn:hover:not(:disabled){border-color:var(--cyan);} .cmdBtn:disabled{opacity:.4;cursor:default;}
-  #quizArea{margin-top:6px;}
-  .quizMove{font-size:11px;color:var(--txt-dim);margin-bottom:5px;}
-  .quizQ{font-size:13.5px;line-height:1.6;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;}
-  #quizChoices{display:grid;gap:7px;margin-top:8px;}
-  .qchoice{text-align:left;font-family:inherit;font-size:12.5px;cursor:pointer;color:var(--txt);background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:10px 12px;transition:.12s;}
-  .qchoice:hover:not(:disabled){border-color:var(--cyan);box-shadow:var(--glow);}
+  .brow.foe{flex-direction:row-reverse;}
+  .brow.me{flex-direction:row;}
+  .bart{position:relative;width:clamp(84px,24cqw,190px);aspect-ratio:1;flex:0 0 auto;display:flex;align-items:center;justify-content:center;}
+  @container stage (max-height:520px){ .bart{width:clamp(72px,16cqw,130px);} }
+  .bart::before{content:"";position:absolute;left:4%;right:4%;bottom:2%;height:20%;border-radius:50%;background:radial-gradient(rgba(42,35,80,.28),rgba(42,35,80,.06) 70%,transparent 72%);}
+  .bart svg{position:relative;width:96%;height:96%;filter:var(--outline);--ol:2px;}
+  .bart.enter svg{animation:enter .4s cubic-bezier(.3,1.6,.5,1);}
+  @keyframes enter{from{transform:scale(.2) translateY(30%);opacity:0}to{transform:none;opacity:1}}
+  .bart.hit svg{animation:shake .35s;}
+  @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px);filter:var(--outline) brightness(1.8)}60%{transform:translateX(9px)}}
+  .dmgPop{position:absolute;left:50%;top:18%;z-index:3;transform:translateX(-50%);font-size:1.9em;font-weight:800;color:#fff;pointer-events:none;white-space:nowrap;
+    text-shadow:2px 0 var(--ink),-2px 0 var(--ink),0 2px var(--ink),0 -2px var(--ink),2px 2px var(--ink),-2px -2px var(--ink),2px -2px var(--ink),-2px 2px var(--ink);animation:dmgUp .95s ease-out forwards;}
+  .dmgPop.super{color:var(--sun);font-size:2.3em;} .dmgPop.weak{color:#cfd3ea;} .dmgPop.miss{color:#fff;font-size:1.4em;}
+  @keyframes dmgUp{0%{transform:translate(-50%,10px) scale(.6);opacity:0}20%{transform:translate(-50%,0) scale(1.15);opacity:1}100%{transform:translate(-50%,-40px) scale(1);opacity:0}}
+  .bcard{flex:1;min-width:0;max-width:360px;background:#fff;border:var(--bw) solid var(--ink);border-radius:16px;box-shadow:var(--pop-sm);padding:8px 12px;}
+  .bcard .bname{font-size:1.08em;font-weight:800;display:flex;align-items:center;gap:6px;justify-content:space-between;}
+  .bcard .bname>span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .bcard .blv{font-size:.85em;color:var(--txt-dim);font-weight:700;}
+  .tbadge{display:inline-block;font-size:.72em;padding:1px 9px;border-radius:999px;border:2px solid var(--ink);font-weight:800;color:#fff;background:var(--tc,#8a8fa8);text-shadow:0 1px 0 rgba(42,35,80,.45);white-space:nowrap;vertical-align:middle;}
+  .hpline{height:14px;background:#eceaf5;border:2px solid var(--ink);border-radius:999px;overflow:hidden;margin-top:5px;position:relative;}
+  .hpline span{display:block;height:100%;background:var(--lime);transition:width .45s ease-out,background .3s;border-radius:999px;}
+  .hptxt{font-size:.82em;color:var(--txt-dim);margin-top:2px;font-weight:700;text-align:right;font-variant-numeric:tabular-nums;}
+  .xpline{height:6px;background:#eceaf5;border:1.5px solid var(--ink);border-radius:999px;overflow:hidden;margin-top:3px;}
+  .xpline span{display:block;height:100%;background:var(--sky);transition:width .35s;}
+  .bmid{display:flex;justify-content:space-between;align-items:center;font-size:.9em;margin:0 4px;}
+  .combo{color:#fff;font-weight:800;background:var(--amber);border:2px solid var(--ink);border-radius:999px;padding:0 10px;}
+  .combo:empty{display:none;}
+  .partyDots{display:flex;gap:5px;background:rgba(255,255,255,.75);border:2px solid var(--ink);border-radius:999px;padding:4px 8px;}
+  .pdot{width:12px;height:12px;border-radius:50%;background:var(--lime);border:2px solid var(--ink);}
+  .pdot.ko{background:#bbb6cf;} .pdot.cur{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--violet);}
+  .bcmd{padding:12px;align-self:center;}
+  @container stage (max-width:639px){ .bcmd{align-self:end;} }
+
+  /* 技・コマンド */
+  #battleMenu{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  #battleMenu:empty{display:none;}
+  .mvBtn{text-align:left;background:#fff;color:var(--ink);border:var(--bw) solid var(--ink);border-left:12px solid var(--tc,var(--ink));border-radius:14px;padding:10px 12px;min-height:62px;cursor:pointer;
+    box-shadow:var(--pop-sm);transition:transform .08s,box-shadow .08s;display:flex;flex-direction:column;justify-content:center;gap:2px;}
+  .mvBtn:hover:not(:disabled){transform:translateY(-1px);}
+  .mvBtn:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 var(--ink);}
+  .mvBtn:disabled{opacity:.4;cursor:default;box-shadow:none;}
+  .mvBtn b{font-size:1.02em;} .mvmeta{font-size:.8em;color:var(--txt-dim);font-weight:700;}
+  .cmdRow{grid-column:1/-1;display:flex;gap:8px;}
+  .cmdBtn{flex:1;font-size:.98em;font-weight:800;background:var(--sun);color:var(--ink);border:var(--bw) solid var(--ink);border-radius:999px;padding:10px;min-height:52px;cursor:pointer;box-shadow:var(--pop-sm);transition:transform .08s,box-shadow .08s;}
+  .cmdBtn:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 var(--ink);}
+  .cmdBtn:disabled{opacity:.4;cursor:default;box-shadow:none;}
+  #battleMenu>.cmdBtn{grid-column:1/-1;background:#fff;}
+
+  /* クイズ */
+  .quizMove{font-size:.9em;margin-bottom:8px;font-weight:700;}
+  .quizMove b{color:#fff!important;background:var(--tc,var(--violet));border:2px solid var(--ink);border-radius:999px;padding:1px 10px;}
+  .quizQ{font-size:1.1em;line-height:1.65;font-weight:700;background:var(--bg);border:var(--bw) solid var(--ink);border-radius:16px;padding:12px 14px;}
+  #quizChoices{display:grid;gap:9px;margin-top:10px;counter-reset:ch;}
+  .qchoice{counter-increment:ch;display:flex;align-items:center;gap:10px;text-align:left;font-size:1em;font-weight:700;cursor:pointer;color:var(--ink);background:#fff;border:var(--bw) solid var(--ink);border-radius:14px;padding:10px 12px;min-height:54px;box-shadow:var(--pop-sm);transition:transform .08s,box-shadow .08s;}
+  .qchoice::before{content:counter(ch,upper-alpha);flex:0 0 30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--violet);color:#fff;border:2px solid var(--ink);font-weight:800;}
+  .qchoice:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 var(--ink);}
   .qchoice:disabled{cursor:default;}
-  .qchoice.correct{background:rgba(127,224,160,.2);border-color:var(--lime);color:#eaffd6;}
-  .qchoice.wrong{background:rgba(240,86,110,.2);border-color:var(--danger);color:#ffdede;}
+  .qchoice.correct{background:#c9f7d8;} .qchoice.correct::before{content:"◯";background:var(--lime);}
+  .qchoice.wrong{background:#ffd3d8;animation:wiggle .35s;}
+  @keyframes wiggle{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}} .qchoice.wrong::before{content:"✕";background:var(--danger);}
 
-  #log{margin:0 12px 12px;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:9px 12px;min-height:42px;font-size:12px;line-height:1.6;color:var(--txt-dim);}
-  #log .sys{color:var(--cyan);font-weight:600;}
-  #log b{color:var(--txt);}
+  /* 中和滴定 */
+  #titArea{min-width:0;}
+  .titHead{font-size:1.1em;font-weight:800;color:var(--ink);margin-bottom:8px;}
+  .titInfo{font-size:.9em;line-height:1.7;background:var(--bg);border:2px solid var(--ink);border-radius:12px;padding:8px 12px;}
+  .titQ{font-size:1em;font-weight:800;margin:10px 2px 8px;}
+  .titInds{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .titStage{display:flex;justify-content:center;align-items:flex-end;gap:2px;height:clamp(150px,30cqh,220px);}
+  .titBuret{height:100%;width:auto;aspect-ratio:40/200;} .titFlask{height:88%;width:auto;aspect-ratio:1;}
+  .titVol{text-align:center;font-size:1em;font-weight:700;margin:6px 0 10px;} .titVol b{color:var(--amber);font-size:1.5em;font-variant-numeric:tabular-nums;}
+  .titBtns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;}
+  .titBtns .mvBtn{align-items:center;text-align:center;padding:10px 4px;border-left-width:var(--bw);min-height:64px;}
+  .titBtns .mvBtn b{font-size:1.1em;}
+  .titStop{grid-column:1/-1;font-size:1.1em;padding:12px;min-height:58px;background:var(--rose);color:#fff;}
+  .titHint{font-size:.82em;color:var(--txt-dim);text-align:center;margin-top:8px;font-weight:700;}
+  #titCurve{display:block;width:100%;height:auto;background:#fff;border:2px solid var(--ink);border-radius:12px;}
+  .titLegend{font-size:.78em;text-align:center;margin-top:4px;font-weight:700;line-height:1.6;}
 
-  footer{border-top:1px solid var(--line);padding:8px 12px;font-size:10px;color:var(--txt-dim);}
-  .dpad{display:none;}
-  @media (hover:none){.dpad{display:grid;grid-template-columns:repeat(3,46px);gap:5px;justify-content:center;margin-top:9px;}
-    .dpad button{font-family:inherit;font-size:17px;background:var(--panel);color:var(--cyan);border:1px solid var(--line);border-radius:8px;height:42px;cursor:pointer;}.dpad .spacer{visibility:hidden;}}
 
-  #toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(150%);background:var(--panel2);border:1px solid var(--cyan);border-radius:11px;color:var(--txt);padding:11px 18px;font-size:12px;transition:transform .4s;z-index:60;max-width:90vw;text-align:center;box-shadow:var(--glow);}
-  #toast.show{transform:translateX(-50%) translateY(0);} #toast b{color:var(--cyan);}
+  /* ---------- 中和道場 ---------- */
+  #dojo{display:none;position:absolute;inset:0;overflow-y:auto;overscroll-behavior:contain;
+    background:radial-gradient(rgba(255,255,255,.7) 2px,transparent 2.6px),linear-gradient(#fff3c4 0%,#fffbe8 48%,#d4f4e2 48%,#bfeccf 100%);background-size:22px 22px,100% 100%;}
+  .dfield{display:flex;flex-direction:column;gap:12px;justify-content:space-around;min-height:100%;}
+  .dProg{text-align:center;font-weight:800;font-size:.9em;}
+  .bkRow{display:flex;gap:10px;justify-content:center;}
+  .bkCard{position:relative;flex:1 1 0;min-width:0;max-width:300px;background:#fff;border:var(--bw) solid var(--ink);border-radius:16px;box-shadow:var(--pop-sm);padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;}
+  .bkCard.pick{cursor:pointer;} .bkCard.pick:active{transform:translateY(2px);}
+  .bkCard.sel{box-shadow:0 0 0 4px var(--violet),var(--pop-sm);}
+  .bkCard.done{background:#eafff0;}
+  .bkName{font-weight:800;font-size:.95em;line-height:1.3;}
+  .bkPics{display:flex;align-items:flex-end;justify-content:center;gap:2px;}
+  .bkArt{width:clamp(44px,8cqw,80px);aspect-ratio:1;} .bkArt svg{width:100%;height:100%;filter:var(--outline);--ol:1.4px;}
+  .bkArt.hidden svg{filter:brightness(0) opacity(.3);}
+  .bkBeaker{width:clamp(50px,8cqw,84px);height:auto;}
+  .bkInfo{font-size:.82em;color:var(--txt-dim);font-weight:700;line-height:1.55;} .bkInfo b{color:var(--ink);font-size:1.08em;}
+  .bkInfo .hint{color:var(--violet);font-size:.92em;}
+  .bkTag{position:absolute;top:-12px;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:.75em;font-weight:800;border:2px solid var(--ink);border-radius:999px;padding:1px 10px;color:#fff;}
+  .bkTag.ok{background:var(--lime);} .bkTag.ng{background:var(--danger);}
+  .phMeter{width:100%;max-width:220px;margin-top:2px;}
+  .phBar{position:relative;height:12px;border:2px solid var(--ink);border-radius:999px;background:linear-gradient(90deg,#e53935,#ff9800 20%,#fdd835 36%,#43a047 50%,#1e88e5 68%,#3949ab 84%,#7b1fa2);}
+  .phNeedle{position:absolute;top:-7px;width:5px;height:22px;background:var(--ink);border:1.5px solid #fff;border-radius:3px;transform:translateX(-50%);transition:left .5s ease-out;}
+  .phVal{font-size:.85em;font-weight:800;margin-top:2px;}
+  .dMe{display:flex;align-items:center;gap:10px;justify-content:center;}
+  .dMe .bart{width:clamp(60px,12cqw,100px);}
+  .dGoal{font-size:.9em;font-weight:700;line-height:1.6;background:var(--bg);border:2px solid var(--ink);border-radius:12px;padding:8px 12px;margin-bottom:8px;}
+  .stgNo{display:inline-block;background:var(--violet);color:#fff;border:2px solid var(--ink);border-radius:999px;padding:0 9px;font-size:.85em;font-weight:800;margin-right:4px;}
+  .dLbl{font-size:.82em;font-weight:800;color:var(--txt-dim);margin:6px 2px 5px;} .dLbl b{color:var(--ink);}
+  .stdRow{display:grid;grid-template-columns:1fr 1fr;gap:8px;} .toolRow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+  .stdRow .mvBtn,.toolRow .mvBtn{border-left-width:var(--bw);min-height:56px;align-items:center;text-align:center;}
+  .mvBtn.on{background:var(--sun);box-shadow:0 0 0 3px var(--violet),var(--pop-sm);}
+  .volBox{display:flex;align-items:baseline;justify-content:center;gap:6px;font-weight:800;margin:10px 0 8px;}
+  .volBox .v{font-size:1.9em;min-width:4.6em;text-align:right;background:var(--bg);border:var(--bw) solid var(--ink);border-radius:12px;padding:0 12px;font-variant-numeric:tabular-nums;}
+  .kp{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;}
+  .kp button{min-height:50px;font-size:1.2em;font-weight:800;background:#fff;color:var(--ink);border:var(--bw) solid var(--ink);border-radius:12px;box-shadow:var(--pop-sm);cursor:pointer;}
+  .kp button.q{background:var(--panel2);font-size:.92em;}
+  .kp button:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink);}
+  .pourBtn{width:100%;margin-top:10px;font-size:1.15em;min-height:58px;background:var(--rose);color:#fff;}
+  .stepList{margin:6px 0 0 1.3em;font-size:.92em;line-height:1.75;}
+  .stars{font-size:1.25em;letter-spacing:3px;color:#ffb800;text-shadow:0 1px 0 var(--ink);} .stars .off{color:#d9d4ea;text-shadow:none;}
+  .stars.big{font-size:2.6em;text-align:center;margin:4px 0 8px;}
+  .resBtns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:10px;}
+  .row.stg{align-items:flex-start;} .row.stg .sub{font-weight:500;}
+  /* SVG内の影は輪郭線フィルタで黒く潰れるので隠し、CSSの影に置き換える */
+  svg [fill^="rgba(0,0,0"]{display:none;}
 
-  .overlay{display:none;position:absolute;inset:0;z-index:20;background:rgba(6,12,22,.96);padding:16px;overflow:auto;}
-  .overlay.show{display:block;}
-  .ovTitle{font-size:15px;font-weight:700;text-align:center;margin-bottom:8px;background:linear-gradient(90deg,var(--cyan),var(--amber));-webkit-background-clip:text;background-clip:text;color:transparent;}
-  .ovClose{position:absolute;right:12px;top:12px;font-family:inherit;font-size:11px;background:var(--danger);color:#fff;border:none;border-radius:8px;padding:5px 11px;cursor:pointer;z-index:2;}
-  .tabs{display:flex;gap:5px;justify-content:center;margin:8px 0;flex-wrap:wrap;}
-  .tab{font-family:inherit;font-size:11px;background:var(--panel);color:var(--txt-dim);border:1px solid var(--line);border-radius:18px;padding:5px 13px;cursor:pointer;}
-  .tab.active{background:linear-gradient(90deg,var(--cyan),var(--violet));color:#04121a;font-weight:700;border-color:transparent;}
+  /* 手持ちパネル（横画面の右カラム） */
+  #partyPanel{display:none;padding:8px 10px;flex:0 0 auto;}
+  #partyPanel .pp{display:flex;align-items:center;gap:8px;padding:3px 0;font-size:.85em;font-weight:800;}
+  #partyPanel .pp+.pp{border-top:2px dashed var(--soft);}
+  #partyPanel .pp svg{width:34px;height:34px;flex:0 0 34px;filter:var(--outline);--ol:1px;}
+  #partyPanel .pp .ppi{flex:1;min-width:0;}
+  #partyPanel .pp .ppn{display:flex;justify-content:space-between;gap:4px;white-space:nowrap;}
+  #partyPanel .pp .ppn span:first-child{overflow:hidden;text-overflow:ellipsis;}
+  #partyPanel .pp.ko{opacity:.45;}
+  #partyPanel .hpline{height:9px;margin-top:2px;border-width:1.5px;}
+  @media (orientation:landscape) and (min-width:700px) and (min-height:560px){ #partyPanel{display:block;} }
+  /* ログ: 新しい順に数件。古いものは薄く */
+  #log .lg{padding:2px 0;} #log .lg+.lg{opacity:.5;font-size:.92em;border-top:1.5px dashed var(--soft);margin-top:3px;padding-top:4px;}
+
+  /* ---------- 汎用パーツ ---------- */
+  .sub{color:var(--txt-dim);font-size:.85em;}
+  .note{font-size:.9em;color:var(--txt);line-height:1.75;background:var(--bg);border:2px solid var(--ink);border-radius:14px;padding:10px 14px;}
+  .note b{color:var(--ink);}
+  .empty{color:var(--txt-dim);font-size:.9em;text-align:center;padding:18px;font-weight:700;}
+  .row{display:flex;justify-content:space-between;align-items:center;gap:10px;border:2px solid var(--ink);background:#fff;border-radius:14px;padding:10px 12px;margin-bottom:9px;font-weight:700;box-shadow:var(--pop-sm);}
+  .row .info{flex:1;} .row .sub{margin-top:2px;}
+  .actBtn{font-size:.95em;font-weight:800;background:var(--mint);color:var(--ink);border:2px solid var(--ink);border-radius:999px;padding:8px 18px;min-height:44px;cursor:pointer;box-shadow:var(--pop-sm);}
+  .actBtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink);}
+  .statLine{font-size:1.05em;line-height:2.1;font-weight:700;} .statLine b{color:var(--violet);}
+  .miniBtn{font-size:.85em;font-weight:800;background:#fff;color:var(--ink);border:2px solid var(--ink);border-radius:10px;padding:6px 10px;min-height:38px;cursor:pointer;box-shadow:0 2px 0 var(--ink);}
+  .miniBtn:disabled{opacity:.4;cursor:default;box-shadow:none;}
+
+  /* ---------- オーバーレイ（メニュー・ショップ等） ---------- */
+  .overlay{display:none;position:absolute;inset:0;z-index:20;background:rgba(42,35,80,.5);padding:12px;overflow:auto;overscroll-behavior:contain;}
+  .overlay.show{display:block;animation:fadeIn .15s;}
+  @keyframes fadeIn{from{opacity:0}}
+  .ovCard{position:relative;width:min(880px,100%);margin:0 auto;background:var(--bg);border:var(--bw) solid var(--ink);border-radius:22px;box-shadow:0 6px 0 var(--ink);padding:16px;animation:popIn .18s ease-out;}
+  .ovTitle{font-size:1.35em;font-weight:800;text-align:center;margin:2px 60px 10px;color:var(--ink);}
+  .ovClose{position:absolute;right:12px;top:12px;font-size:.9em;font-weight:800;background:var(--danger);color:#fff;border:2px solid var(--ink);border-radius:999px;padding:6px 14px;min-height:40px;cursor:pointer;z-index:2;box-shadow:var(--pop-sm);}
+  .ovClose:active{transform:translateY(2px);box-shadow:0 1px 0 var(--ink);}
+  .tabs{display:flex;gap:6px;justify-content:center;margin:8px 0 14px;flex-wrap:wrap;}
+  .tab{font-size:.95em;font-weight:800;background:#fff;color:var(--ink);border:2px solid var(--ink);border-radius:999px;padding:7px 16px;min-height:42px;cursor:pointer;}
+  .tab.active{background:var(--violet);color:#fff;box-shadow:var(--pop-sm);}
   .mpanel{display:none;} .mpanel.show{display:block;}
-  .row{display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:9px 11px;margin-bottom:7px;font-size:12px;}
-  .row .info{flex:1;} .row .sub{color:var(--txt-dim);font-size:10px;margin-top:2px;}
-  .actBtn{font-family:inherit;font-size:11px;font-weight:600;background:linear-gradient(90deg,var(--cyan),var(--violet));color:#04121a;border:none;border-radius:8px;padding:6px 13px;cursor:pointer;}
-  .actBtn:hover{filter:brightness(1.1);}
-  .statLine{font-size:12.5px;line-height:2;} .statLine b{color:var(--cyan);}
-  .empty{color:var(--txt-dim);font-size:11px;text-align:center;padding:16px;}
-  .sub{color:var(--txt-dim);font-size:11px;}
-  /* party monrow */
-  .monrow{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:8px 10px;margin-bottom:7px;}
-  .monrow.box{opacity:.85;}
-  .monart{width:44px;height:44px;flex:0 0 44px;} .monart svg{width:44px;height:44px;}
+  .monrow{display:flex;align-items:center;gap:12px;border:2px solid var(--ink);background:#fff;border-radius:14px;padding:8px 12px;margin-bottom:9px;box-shadow:var(--pop-sm);}
+  .monrow.box{background:var(--panel2);}
+  .monart{width:54px;height:54px;flex:0 0 54px;} .monart svg{width:54px;height:54px;filter:var(--outline);--ol:1.2px;}
   .moninfo{flex:1;min-width:0;}
-  .monname{font-size:12.5px;font-weight:700;display:flex;align-items:center;gap:6px;}
-  .monsub{font-size:10.5px;color:var(--txt-dim);margin-top:2px;}
-  .xpbar{height:4px;background:var(--bg);border-radius:4px;overflow:hidden;margin-top:4px;}
-  .xpbar span{display:block;height:100%;background:linear-gradient(90deg,var(--amber),var(--gold));}
-  .monbtns{display:flex;flex-direction:column;gap:4px;flex:0 0 auto;}
+  .monname{font-size:1.02em;font-weight:800;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  .monsub{font-size:.82em;color:var(--txt-dim);margin-top:2px;font-weight:700;}
+  .xpbar{height:6px;background:#eceaf5;border:1.5px solid var(--ink);border-radius:999px;overflow:hidden;margin-top:5px;}
+  .xpbar span{display:block;height:100%;background:var(--sky);}
+  .monbtns{display:flex;flex-direction:column;gap:6px;flex:0 0 auto;}
   .monbtns .miniBtn{white-space:nowrap;}
-  .miniBtn{font-family:inherit;font-size:11px;background:var(--panel2);color:var(--cyan);border:1px solid var(--line);border-radius:7px;padding:4px 8px;cursor:pointer;}
-  .miniBtn:disabled{opacity:.4;cursor:default;}
-  .dexGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:7px;}
-  .dexCard{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:7px;text-align:center;font-size:10.5px;}
-  .dexCard svg{width:46px;height:46px;}
-  .dexCard.unknown{color:var(--txt-dim);} .dexCard.unknown svg{filter:brightness(0) opacity(.4);}
+  .dexGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:9px;}
+  .dexCard{border:2px solid var(--ink);background:#fff;border-radius:14px;padding:8px;text-align:center;font-size:.85em;font-weight:800;box-shadow:var(--pop-sm);}
+  .dexCard svg{width:60px;height:60px;filter:var(--outline);--ol:1.2px;}
+  .dexCard.unknown{color:var(--txt-dim);background:var(--panel2);} .dexCard.unknown svg{filter:brightness(0) opacity(.25);}
   .chartWrap{overflow-x:auto;}
-  table.chart{border-collapse:collapse;font-size:11px;margin:0 auto;}
-  table.chart th,table.chart td{border:1px solid var(--line);padding:4px 6px;text-align:center;min-width:28px;}
-  table.chart .good{color:var(--lime);font-weight:700;} table.chart .bad{color:var(--danger);font-weight:700;}
-  .note{font-size:11px;color:var(--txt-dim);line-height:1.7;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;}
-  .note b{color:var(--txt);}
-  .rankRow{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--panel);border-radius:9px;padding:8px 11px;margin-bottom:6px;font-size:12px;}
-  .rankRow.me{border-color:var(--cyan);box-shadow:var(--glow);}
-  .rankNo{flex:0 0 32px;font-weight:700;font-size:13px;text-align:center;}
-  .rankName{flex:1;font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .rankRec{flex:0 0 auto;color:var(--txt-dim);font-size:11px;} .rankRec b{color:var(--gold);}
-  .vrow{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:9px 11px;margin-bottom:8px;position:relative;}
+  table.chart{border-collapse:separate;border-spacing:3px;font-size:.9em;margin:0 auto;font-weight:800;}
+  table.chart th,table.chart td{background:#fff;border:2px solid var(--ink);border-radius:8px;padding:6px 8px;text-align:center;min-width:40px;}
+  table.chart .good{color:var(--lime);font-size:1.2em;} table.chart .bad{color:var(--danger);font-size:1.2em;}
+  .rankRow{display:flex;align-items:center;gap:10px;border:2px solid var(--ink);background:#fff;border-radius:14px;padding:9px 12px;margin-bottom:8px;font-weight:700;box-shadow:var(--pop-sm);}
+  .rankRow.me{background:#fff4c2;}
+  .rankNo{flex:0 0 36px;font-weight:800;font-size:1.05em;text-align:center;}
+  .rankName{flex:1;font-weight:800;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .rankRec{flex:0 0 auto;color:var(--txt-dim);font-size:.9em;} .rankRec b{color:var(--amber);}
+  .vrow{border:2px solid var(--ink);background:#fff;border-radius:14px;padding:10px 12px;margin-bottom:9px;position:relative;box-shadow:var(--pop-sm);}
   .vhead{display:flex;align-items:center;gap:8px;justify-content:space-between;}
-  .vname{font-weight:700;font-size:13px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .vrec{font-size:10.5px;color:var(--txt-dim);flex:0 0 auto;}
-  .vteams{display:flex;gap:4px;margin-top:7px;flex-wrap:wrap;}
-  .vteam{position:relative;width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;background:var(--panel2);border:1px solid var(--line);border-radius:7px;}
-  .vteam svg{width:28px;height:28px;}
-  .vlv{position:absolute;right:-2px;bottom:-3px;font-size:8px;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:0 3px;color:var(--cyan);}
-  .vbtn{position:absolute;right:11px;bottom:11px;}
-  .vrow .vteams{padding-right:66px;}
-  .noteItem{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:10px 12px;margin-bottom:7px;font-size:11.5px;line-height:1.75;}
-  .noteItem h4{color:var(--cyan);font-size:11.5px;margin-bottom:4px;}
+  .vname{font-weight:800;font-size:1.05em;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .vrec{font-size:.82em;color:var(--txt-dim);flex:0 0 auto;font-weight:700;}
+  .vteams{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap;padding-right:84px;}
+  .vteam{position:relative;width:42px;height:42px;display:inline-flex;align-items:center;justify-content:center;background:var(--panel2);border:2px solid var(--ink);border-radius:10px;}
+  .vteam svg{width:34px;height:34px;}
+  .vlv{position:absolute;right:-4px;bottom:-5px;font-size:.62em;background:#fff;border:1.5px solid var(--ink);border-radius:6px;padding:0 3px;color:var(--ink);font-weight:800;}
+  .vbtn{position:absolute;right:12px;bottom:12px;}
+  .noteItem{border:2px solid var(--ink);background:#fff;border-radius:14px;padding:12px 14px;margin-bottom:9px;font-size:.92em;line-height:1.8;box-shadow:var(--pop-sm);}
+  .noteItem h4{color:#fff;background:var(--violet);display:inline-block;border:2px solid var(--ink);border-radius:999px;padding:0 12px;font-size:.95em;margin-bottom:6px;}
 
-  /* title */
-  #titlescreen{position:absolute;inset:0;z-index:50;background:linear-gradient(#070f1a,#040a12);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:22px;background-image:radial-gradient(circle at 50% 28%,rgba(79,216,200,.16),transparent 55%),radial-gradient(circle at 50% 74%,rgba(154,124,240,.12),transparent 55%);}
-  #titlescreen .ttlBadge{font-size:10px;letter-spacing:5px;color:var(--cyan);margin-bottom:8px;}
-  .titleArt{margin-bottom:18px;} .titleArt svg{width:66px;height:66px;filter:drop-shadow(0 0 12px rgba(79,216,200,.5));}
-  #titlescreen h1{font-size:27px;font-weight:800;letter-spacing:1px;margin-bottom:6px;background:linear-gradient(90deg,var(--cyan),var(--amber));-webkit-background-clip:text;background-clip:text;color:transparent;}
-  #titlescreen .sub{color:var(--txt-dim);font-size:11px;margin-bottom:18px;}
-  .nameField{margin-bottom:14px;}
-  .nameField input{font-family:inherit;font-size:13px;text-align:center;background:var(--panel);color:var(--txt);border:1px solid var(--line);border-radius:9px;padding:9px 12px;width:200px;max-width:70vw;}
-  .nameField input:focus{outline:none;border-color:var(--cyan);box-shadow:var(--glow);}
-  .startBtn{font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:1px;background:linear-gradient(90deg,var(--cyan),var(--violet));color:#04121a;border:none;border-radius:11px;padding:12px 34px;margin:5px;box-shadow:var(--glow);}
-  .startBtn:hover{filter:brightness(1.1);}
-  #titlescreen .tip{color:var(--txt-dim);font-size:10px;margin-top:16px;line-height:1.8;}
+  /* ---------- タイトル ---------- */
+  #titlescreen{position:absolute;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;overflow:auto;
+    background:radial-gradient(circle at 50% 30%,#fff7c8 0,#ffe27a 30%,transparent 62%),linear-gradient(160deg,#68d0ff,#b7efff 55%,#ffc9e4);}
+  #titlescreen::before,#titlescreen::after{content:"";position:absolute;border-radius:50%;border:3px solid rgba(255,255,255,.8);pointer-events:none;animation:float 6s ease-in-out infinite;}
+  #titlescreen::before{width:120px;height:120px;left:6%;top:12%;background:rgba(255,255,255,.25);}
+  #titlescreen::after{width:70px;height:70px;right:9%;bottom:14%;background:rgba(255,255,255,.3);animation-delay:-3s;}
+  @keyframes float{50%{transform:translateY(-16px)}}
+  #titlescreen .ttlBadge{font-size:.8em;letter-spacing:4px;color:#fff;background:var(--ink);border-radius:999px;padding:4px 14px;margin-bottom:10px;font-weight:800;}
+  .titleArt{margin-bottom:6px;} .titleArt svg{width:clamp(70px,12vw,120px);height:auto;filter:var(--outline);--ol:2px;animation:bob 1.8s ease-in-out infinite;}
+  .titleArt svg:nth-child(2){animation-delay:-.6s;} .titleArt svg:nth-child(3){animation-delay:-1.2s;}
+  #titlescreen h1{font-size:clamp(34px,6.5vw,72px);font-weight:800;letter-spacing:1px;line-height:1.15;margin-bottom:6px;color:#fff;
+    text-shadow:3px 0 var(--ink),-3px 0 var(--ink),0 3px var(--ink),0 -3px var(--ink),3px 3px var(--ink),-3px -3px var(--ink),3px -3px var(--ink),-3px 3px var(--ink),0 8px 0 var(--ink);}
+  #titlescreen h1 .t1{color:var(--rose);} #titlescreen h1 .t2{color:var(--sun);}
+  #titlescreen .sub{color:var(--ink);font-size:.95em;margin:8px 0 16px;font-weight:700;}
+  .nameField{margin-bottom:12px;}
+  .nameField input{font-family:inherit;font-size:1.1em;font-weight:700;text-align:center;background:#fff;color:var(--ink);border:var(--bw) solid var(--ink);border-radius:999px;padding:11px 18px;width:min(300px,80vw);box-shadow:var(--pop-sm);-webkit-user-select:text;user-select:text;}
+  .nameField input:focus{outline:none;box-shadow:var(--pop-sm),var(--glow);}
+  .startBtn{font-size:1.2em;font-weight:800;cursor:pointer;letter-spacing:1px;background:var(--sun);color:var(--ink);border:var(--bw) solid var(--ink);border-radius:999px;padding:12px 36px;min-height:56px;margin:6px;box-shadow:var(--pop);transition:transform .08s,box-shadow .08s;}
+  .startBtn:hover{transform:translateY(-2px);}
+  .startBtn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink);}
+  .startBtn.alt{background:var(--mint);}
+  #resetBtn{background:#fff;font-size:.8em;min-height:36px;margin-top:8px;}
+  #titlescreen .tip{color:var(--ink);font-size:.82em;margin-top:16px;line-height:1.8;background:rgba(255,255,255,.75);border:2px solid var(--ink);border-radius:14px;padding:8px 14px;max-width:640px;font-weight:500;}
 
-  /* starter modal */
-  #starterModal{position:absolute;inset:0;z-index:52;background:rgba(6,12,22,.97);display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;}
+  /* ---------- スターター ---------- */
+  #starterModal{position:absolute;inset:0;z-index:52;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;overflow:auto;
+    background:radial-gradient(rgba(255,255,255,.6) 2px,transparent 2.6px),linear-gradient(160deg,#fff4c6,#ffd9ec);background-size:24px 24px,100% 100%;}
   #starterModal.show{display:flex;}
-  #starterModal h2{font-size:16px;margin-bottom:4px;color:var(--cyan);}
-  #starterModal .sub{margin-bottom:16px;}
-  #starterChoices{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;}
-  .starterCard{font-family:inherit;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;cursor:pointer;width:140px;transition:.15s;}
-  .starterCard:hover{border-color:var(--cyan);box-shadow:var(--glow);transform:translateY(-3px);}
-  .scart svg{width:66px;height:66px;}
-  .scname{font-size:13px;font-weight:700;margin-top:4px;} .sctype{font-size:11px;margin-top:2px;}
+  #starterModal h2{font-size:1.6em;margin-bottom:4px;color:var(--ink);font-weight:800;}
+  #starterModal .sub{margin-bottom:18px;font-weight:700;}
+  #starterChoices{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;}
+  .starterCard{background:#fff;border:var(--bw) solid var(--ink);border-top:14px solid var(--tc,var(--ink));border-radius:20px;padding:14px 12px;cursor:pointer;width:clamp(140px,22vw,210px);box-shadow:var(--pop);transition:transform .12s,box-shadow .12s;}
+  .starterCard:hover{transform:translateY(-5px) rotate(-1deg);box-shadow:0 9px 0 var(--ink);}
+  .starterCard:active{transform:translateY(3px);box-shadow:0 1px 0 var(--ink);}
+  .scart svg{width:clamp(80px,13vw,130px);height:auto;filter:var(--outline);--ol:2px;animation:bob 1.8s ease-in-out infinite;}
+  .scname{font-size:1.2em;font-weight:800;margin-top:6px;} .sctype{margin-top:6px;}
 
-  /* ending */
-  #ending{display:none;position:absolute;inset:0;z-index:55;background:linear-gradient(#040a12,#070f1a);overflow:hidden;}
+  /* ---------- エンディング ---------- */
+  #ending{display:none;position:absolute;inset:0;z-index:55;overflow:hidden;color:#fff;--rose:#fff1a8;--cyan:#c4f6ff;--amber:#ffd23f;
+    text-shadow:0 2px 0 rgba(42,35,80,.6);
+    background:radial-gradient(#fff 1px,transparent 1.6px),linear-gradient(#2a1f6b,#5b3aa8 60%,#ff7ab0);background-size:40px 40px,100% 100%;}
   #ending.show{display:block;}
   #ending .edScroll{position:absolute;left:0;right:0;top:100%;padding:0 24px;text-align:center;}
   #ending.run .edScroll{animation:edroll 34s linear forwards;}
   @keyframes edroll{0%{top:100%;}100%{top:-240%;}}
-  #ending h2{font-size:22px;font-weight:800;margin:14px 0 8px;background:linear-gradient(90deg,var(--cyan),var(--amber));-webkit-background-clip:text;background-clip:text;color:transparent;}
-  #ending .edLine{font-size:13px;color:var(--txt);line-height:2;margin:4px 0;}
-  #ending .edHead{font-size:11px;color:var(--cyan);letter-spacing:3px;margin:20px 0 4px;}
-  #ending .edDim{color:var(--txt-dim);font-size:11px;}
-  #ending .edArt{margin:16px auto;} #ending .edArt svg{width:76px;height:76px;filter:drop-shadow(0 0 14px rgba(79,216,200,.5));}
-  #ending .startBtn{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:none;}
+  #ending h2{font-size:1.8em;font-weight:800;margin:14px 0 8px;color:var(--sun);text-shadow:0 3px 0 var(--ink);}
+  #ending .edLine{font-size:1.05em;line-height:2;margin:4px 0;}
+  #ending .edLine b{color:var(--sun)!important;}
+  #ending .edHead{font-size:.9em;color:var(--sun);letter-spacing:3px;margin:20px 0 4px;font-weight:800;}
+  #ending .edDim{color:#e6defa;font-size:.92em;}
+  #ending .edArt{margin:16px auto;} #ending .edArt svg{width:110px;height:110px;filter:var(--outline);--ol:2px;}
+  #ending .startBtn{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);display:none;}
+
+  /* ---------- トースト ---------- */
+  #toast{position:fixed;left:50%;top:max(14px,env(safe-area-inset-top));transform:translateX(-50%) translateY(calc(-100% - 40px));background:var(--sun);border:var(--bw) solid var(--ink);border-radius:999px;color:var(--ink);padding:10px 22px;font-size:1em;font-weight:800;transition:transform .35s cubic-bezier(.3,1.5,.5,1);z-index:60;max-width:92vw;text-align:center;box-shadow:var(--pop);}
+  #toast.show{transform:translateX(-50%) translateY(0);} #toast b{color:var(--rose);}
+
+  /* ---------- 小さい画面の微調整 ---------- */
+  @media (max-width:480px){
+    :root{--bw:2.5px;--r:15px;}
+    #app{gap:8px;}
+    .title{font-size:1em;}
+    .iconBtn{padding:5px 11px;}
+    #battleMenu{gap:8px;}
+    .mvBtn{min-height:56px;padding:8px 10px;}
+  }
+  @media (orientation:landscape) and (max-height:500px){
+    :root{--fs:13px;}
+    #hud{padding:3px 8px;} .brand .logo,.brand .logo svg{width:28px;height:28px;} .title{display:none;}
+    .iconBtn{min-height:34px;padding:3px 10px;}
+    .dpad{--dk:44px!important;}
+    .keyhint{display:none;}
+  }
   @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;}}
 </style>
 <!-- ===== Firebase（非同期対戦・クラウドセーブ・ランキング） =====
@@ -217,20 +425,25 @@
     apiKey: "AIzaSyAGvJIgwg40by-SataIwcGgND-SyMQNuYk",
     authDomain: "acid-monster.firebaseapp.com",
     projectId: "acid-monster",
-    storageBucket: "acid-monster.firebasestorage.app",
-    messagingSenderId: "62430143739",
-    appId: "1:62430143739:web:7275927bd3919c9b21bc5e"
-  };
+    storageBucket: "acid-monster.appspot.com"
+  }; /* acid-monster プロジェクト（クラウド同期：非同期対戦・ランキング・編成登録） */
   /* ▲▲▲ ここまで ▲▲▲ */
 </script>
 </head>
 <body>
 <div id="app">
-  <header>
-    <div class="titleRow">
-      <div class="brand"><span class="logo" id="logoSlot"></span><span class="title">アシッドモンスター</span></div>
-      <div class="hbtns"><button class="iconBtn" id="bgmBtn" title="BGM">♪</button><button class="iconBtn" id="openMenu">☰ MENU</button></div>
-    </div>
+  <header id="hud" class="card">
+    <div class="brand"><span class="logo" id="logoSlot"><svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+    <defs><lineargradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(255,255,255,.35)"></stop><stop offset="1" stop-color="rgba(255,255,255,0)"></stop></lineargradient></defs>
+    <circle cx="20" cy="20" r="18.2" fill="none" stroke="#ff8aa0" stroke-width="1" stroke-dasharray="1.5 3.5" stroke-linecap="round"></circle><ellipse cx="20" cy="36" rx="10" ry="2" fill="rgba(0,0,0,.3)"></ellipse>
+   <path d="M6 20 Q2 14 7 12 Q6 18 11 19 Z" fill="#ff8aa0"></path><path d="M34 20 Q38 14 33 12 Q34 18 29 19 Z" fill="#ff8aa0"></path>
+   <path d="M20 6 L17 11 L23 11 Z" fill="#ffd0d8"></path>
+   <ellipse cx="20" cy="22" rx="11" ry="12" fill="#f0566e"></ellipse><ellipse cx="20" cy="22" rx="11" ry="12" fill="url(#gg)"></ellipse>
+   <path d="M20 10 L16 16 h8 Z" fill="#ff8aa0"></path>
+   <path d="M14 14 l-2 -5 l4 3 Z M26 14 l2 -5 l-4 3 Z" fill="#ffd0d8"></path>
+   <circle cx="20" cy="26" r="2.2" fill="#ffd0d8" opacity=".7"></circle><circle cx="15" cy="19" r="2.4" fill="#fff"></circle><circle cx="25" cy="19" r="2.4" fill="#fff"></circle><circle cx="15" cy="19" r="1.2" fill="#3a0a12"></circle><circle cx="25" cy="19" r="1.2" fill="#3a0a12"></circle>
+   <path d="M15 26 q5 3 10 0" stroke="#3a0a12" stroke-width="1.4" fill="none"></path>
+   <path d="M17 23 l-2 2 M23 23 l2 2" stroke="#fff" stroke-width="1.2"></path></svg></span><span class="title">アシッドモンスター</span></div>
     <div class="stats">
       <div class="chip">👤 <b id="pname">―</b></div>
       <div class="chip gold">✦ <b id="gold">0</b></div>
@@ -238,119 +451,164 @@
       <div class="chip">📖 <b id="dexn">0</b></div>
       <div class="chip leadwrap"><span id="leadName">―</span><span class="leadbar"><span class="leadfill" id="leadHp" style="width:100%"></span></span><span id="leadHpTxt" class="sub"></span></div>
     </div>
+    <div class="hbtns"><button class="iconBtn" id="bgmBtn" title="BGM" aria-label="BGMの切り替え">♪</button><button class="iconBtn" id="openMenu">☰ MENU</button></div>
   </header>
 
-  <div id="viewport">
-    <div id="world"></div>
-    <div id="areaName">―</div>
-    <canvas id="minimap" width="86" height="58"></canvas>
-    <div id="dialogue">
-      <div class="portrait" id="portrait"></div>
-      <div class="dlgBody"><div class="dlgName" id="dlgName"></div><div class="dlgText" id="dlgText"></div><div class="dlgHint">▶ クリック / Enter / Space で進む</div></div>
-    </div>
-
-    <!-- MENU -->
-    <div class="overlay" id="menu">
-      <button class="ovClose" id="closeMenu">× 閉じる</button>
-      <div class="ovTitle">MENU</div>
-      <div class="tabs">
-        <button class="tab active" data-tab="team">手持ち</button>
-        <button class="tab" data-tab="bag">道具</button>
-        <button class="tab" data-tab="dex">図鑑</button>
-        <button class="tab" data-tab="type">相性</button>
-        <button class="tab" data-tab="note">公式</button>
+  <main id="stage" class="card">
+    <div id="viewport">
+      <div id="world"></div>
+      <div id="areaName">―</div>
+      <canvas id="minimap" width="86" height="58"></canvas>
+      <div id="dialogue">
+        <div class="portrait" id="portrait"></div>
+        <div class="dlgBody"><div class="dlgName" id="dlgName"></div><div class="dlgText" id="dlgText"></div><div class="dlgHint">▼ タップ / Enter で次へ</div></div>
       </div>
-      <div class="mpanel show" id="mpanel-team"></div>
-      <div class="mpanel" id="mpanel-bag"></div>
-      <div class="mpanel" id="mpanel-dex"></div>
-      <div class="mpanel" id="mpanel-type"></div>
-      <div class="mpanel" id="mpanel-note"></div>
     </div>
 
-    <!-- SHOP -->
-    <div class="overlay" id="shop">
-      <button class="ovClose" id="closeShop">× 出る</button>
-      <div class="ovTitle">補給ショップ</div>
-      <div style="text-align:center;font-size:11px;color:var(--txt-dim);margin-bottom:8px;">所持 ✦ <b id="shopGold" style="color:var(--gold)">0</b></div>
-      <div id="shopList"></div>
-    </div>
-
-    <!-- REGISTER -->
-    <div class="overlay" id="register">
-      <button class="ovClose" id="closeRegister">× 閉じる</button>
-      <div class="ovTitle">📋 編成登録</div>
-      <div id="registerBody"></div>
-    </div>
-
-    <!-- RANKING -->
-    <div class="overlay" id="ranking">
-      <button class="ovClose" id="closeRanking">× 閉じる</button>
-      <div class="ovTitle">🏆 ランキング</div>
-      <div id="rankingBody"></div>
-    </div>
-
-    <!-- VERSUS (自由対戦) -->
-    <div class="overlay" id="versus">
-      <button class="ovClose" id="closeVersus">× 閉じる</button>
-      <div class="ovTitle">⚔ 自由対戦</div>
-      <div id="versusBody"></div>
-    </div>
-
-    <!-- TITLE -->
-    <div id="titlescreen">
-      <div class="ttlBadge">CHEMISTRY · ACID & BASE</div>
-      <div class="titleArt" id="titleArt"></div>
-      <h1>アシッドモンスター</h1>
-      <div class="sub">酸と塩基・pH・中和・滴定を学ぶモンスターバトル</div>
-      <div class="nameField"><input id="nameInput" maxlength="8" placeholder="トレーナー名（8字まで）"></div>
-      <div>
-        <button class="startBtn" id="newBtn">▶ はじめる</button>
-        <button class="startBtn" id="contBtn" style="display:none;background:linear-gradient(90deg,var(--lime),var(--cyan));">つづきから</button>
+    <!-- BATTLE -->
+    <div id="battle">
+      <div class="battleInner">
+        <div class="bfield">
+          <div class="brow foe">
+            <div class="bart" id="foeArt"></div>
+            <div class="bcard"><div class="bname"><span id="foeName">―</span><span id="foeType"></span></div>
+              <div class="blv" id="foeLv">Lv―</div><div class="hpline"><span id="foeHp" style="width:100%"></span></div></div>
+          </div>
+          <div class="bmid"><span class="partyDots" id="partyDots"></span><span class="combo" id="comboTag"></span></div>
+          <div class="brow me">
+            <div class="bart" id="myArt"></div>
+            <div class="bcard"><div class="bname"><span id="myName">―</span><span id="myType"></span></div>
+              <div class="blv" id="myLv">Lv―</div><div class="hpline"><span id="myHp" style="width:100%"></span></div>
+              <div class="hptxt" id="myHpTxt"></div><div class="xpline"><span id="myExp" style="width:0%"></span></div></div>
+          </div>
+        </div>
+        <div class="bcmd card">
+          <div id="battleMenu"></div>
+          <div id="titArea" style="display:none;"></div>
+          <div id="quizArea" style="display:none;">
+            <div class="quizMove" id="quizMove"></div>
+            <div class="quizQ" id="quizQ"></div>
+            <div id="quizChoices"></div>
+          </div>
+        </div>
       </div>
-      <button class="iconBtn" id="resetBtn" style="font-size:10px;margin-top:6px;">セーブ削除</button>
-      <div class="tip">移動 = 矢印/WASD　会話 = Space　メニュー = M<br>草むらで出会い、技で化学クイズに正解して戦う。相性とコンボを活かし、弱らせて捕獲。<br>アリーナでCPUに挑戦（バッジ）。⚔で登録者と自由対戦、📋で編成登録、🏆でランキング！</div>
     </div>
+    <!-- 中和道場 -->
+    <div id="dojo"><div class="battleInner"><div class="dfield" id="dField"></div><div class="bcmd card" id="dCmd"></div></div></div>
+  </main>
 
-    <!-- STARTER -->
-    <div id="starterModal">
-      <h2>最初の相棒を選ぼう</h2>
-      <div class="sub">酸・塩基・中和、3タイプから1体</div>
-      <div id="starterChoices"></div>
+  <aside id="side">
+    <div id="log" class="card"><div class="lg"><span class="sys">▶ </span>「はじめる」を押して冒険へ。</div></div>
+    <div id="partyPanel" class="card"></div>
+    <div id="controls">
+      <div class="dpad"><div class="spacer"></div><button data-d="up" aria-label="上">▲</button><div class="spacer"></div><button data-d="left" aria-label="左">◀</button><div class="hub"></div><button data-d="right" aria-label="右">▶</button><div class="spacer"></div><button data-d="down" aria-label="下">▼</button><div class="spacer"></div></div>
+      <div class="keyhint">移動 ←↑→↓ / WASD・マップをタップでも移動<br>会話 Space ／ メニュー M</div>
     </div>
+  </aside>
 
-    <!-- ENDING -->
-    <div id="ending"><div class="edScroll" id="edScroll"></div><button class="startBtn" id="edClose">▶ アリーナへ戻る</button></div>
+  <!-- MENU -->
+  <div class="overlay" id="menu"><div class="ovCard">
+    <button class="ovClose" id="closeMenu">× 閉じる</button>
+    <div class="ovTitle">MENU</div>
+    <div class="tabs">
+      <button class="tab active" data-tab="team">手持ち</button>
+      <button class="tab" data-tab="bag">道具</button>
+      <button class="tab" data-tab="dex">図鑑</button>
+      <button class="tab" data-tab="type">相性</button>
+      <button class="tab" data-tab="note">公式</button>
+    </div>
+    <div class="mpanel show" id="mpanel-team"></div>
+    <div class="mpanel" id="mpanel-bag"></div>
+    <div class="mpanel" id="mpanel-dex"></div>
+    <div class="mpanel" id="mpanel-type"></div>
+    <div class="mpanel" id="mpanel-note"></div>
+  </div></div>
+
+  <!-- SHOP -->
+  <div class="overlay" id="shop"><div class="ovCard">
+    <button class="ovClose" id="closeShop">× 出る</button>
+    <div class="ovTitle">🛍 補給ショップ</div>
+    <div style="text-align:center;font-weight:800;margin-bottom:10px;">所持 ✦ <b id="shopGold" style="color:var(--gold)">0</b></div>
+    <div id="shopList"></div>
+  </div></div>
+
+  <!-- REGISTER -->
+  <div class="overlay" id="register"><div class="ovCard">
+    <button class="ovClose" id="closeRegister">× 閉じる</button>
+    <div class="ovTitle">📋 編成登録</div>
+    <div id="registerBody"></div>
+  </div></div>
+
+  <!-- RANKING -->
+  <div class="overlay" id="ranking"><div class="ovCard">
+    <button class="ovClose" id="closeRanking">× 閉じる</button>
+    <div class="ovTitle">🏆 ランキング</div>
+    <div id="rankingBody"></div>
+  </div></div>
+
+  <!-- VERSUS (自由対戦) -->
+  <div class="overlay" id="versus"><div class="ovCard">
+    <button class="ovClose" id="closeVersus">× 閉じる</button>
+    <div class="ovTitle">⚔ 自由対戦</div>
+    <div id="versusBody"></div>
+  </div></div>
+
+  <!-- 中和道場: 段の選択 -->
+  <div class="overlay" id="dojoMenu"><div class="ovCard">
+    <button class="ovClose" id="closeDojo">× 出る</button>
+    <div class="ovTitle">🥋 中和道場</div>
+    <div id="dojoMenuBody"></div>
+  </div></div>
+
+  <!-- TITLE -->
+  <div id="titlescreen">
+    <div class="ttlBadge">CHEMISTRY · ACID &amp; BASE</div>
+    <div class="titleArt" id="titleArt"><div style="display:flex;gap:6px;justify-content:center"><svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+    <defs><lineargradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(255,255,255,.35)"></stop><stop offset="1" stop-color="rgba(255,255,255,0)"></stop></lineargradient></defs>
+    <circle cx="20" cy="20" r="18.2" fill="none" stroke="#ff8aa0" stroke-width="1" stroke-dasharray="1.5 3.5" stroke-linecap="round"></circle><ellipse cx="20" cy="36" rx="10" ry="2" fill="rgba(0,0,0,.3)"></ellipse>
+   <path d="M6 20 Q2 14 7 12 Q6 18 11 19 Z" fill="#ff8aa0"></path><path d="M34 20 Q38 14 33 12 Q34 18 29 19 Z" fill="#ff8aa0"></path>
+   <path d="M20 6 L17 11 L23 11 Z" fill="#ffd0d8"></path>
+   <ellipse cx="20" cy="22" rx="11" ry="12" fill="#f0566e"></ellipse><ellipse cx="20" cy="22" rx="11" ry="12" fill="url(#gg)"></ellipse>
+   <path d="M20 10 L16 16 h8 Z" fill="#ff8aa0"></path>
+   <path d="M14 14 l-2 -5 l4 3 Z M26 14 l2 -5 l-4 3 Z" fill="#ffd0d8"></path>
+   <circle cx="20" cy="26" r="2.2" fill="#ffd0d8" opacity=".7"></circle><circle cx="15" cy="19" r="2.4" fill="#fff"></circle><circle cx="25" cy="19" r="2.4" fill="#fff"></circle><circle cx="15" cy="19" r="1.2" fill="#3a0a12"></circle><circle cx="25" cy="19" r="1.2" fill="#3a0a12"></circle>
+   <path d="M15 26 q5 3 10 0" stroke="#3a0a12" stroke-width="1.4" fill="none"></path>
+   <path d="M17 23 l-2 2 M23 23 l2 2" stroke="#fff" stroke-width="1.2"></path></svg><svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+    <defs><lineargradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(255,255,255,.35)"></stop><stop offset="1" stop-color="rgba(255,255,255,0)"></stop></lineargradient></defs>
+    <circle cx="20" cy="20" r="18.2" fill="none" stroke="#7fb0ff" stroke-width="1" stroke-dasharray="1.5 3.5" stroke-linecap="round"></circle><ellipse cx="20" cy="36" rx="11" ry="2" fill="rgba(0,0,0,.3)"></ellipse>
+   <rect x="8" y="10" width="24" height="24" rx="4" fill="#4a8af0"></rect><rect x="8" y="10" width="24" height="24" rx="4" fill="url(#gg)"></rect>
+   <rect x="12" y="14" width="16" height="10" rx="2" fill="#7fb0ff" opacity=".5"></rect>
+   <circle cx="14" cy="29" r="1.5" fill="#cfe0ff" opacity=".6"></circle><circle cx="26" cy="29" r="1.5" fill="#cfe0ff" opacity=".6"></circle>
+   <circle cx="15" cy="19" r="2.4" fill="#fff"></circle><circle cx="25" cy="19" r="2.4" fill="#fff"></circle><circle cx="15" cy="19" r="1.2" fill="#07122e"></circle><circle cx="25" cy="19" r="1.2" fill="#07122e"></circle><path d="M16 26 h8" stroke="#07122e" stroke-width="1.4"></path>
+   <rect x="5" y="16" width="3" height="10" rx="1.5" fill="#4a8af0"></rect><rect x="32" y="16" width="3" height="10" rx="1.5" fill="#4a8af0"></rect></svg><svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+    <defs><lineargradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(255,255,255,.35)"></stop><stop offset="1" stop-color="rgba(255,255,255,0)"></stop></lineargradient></defs>
+    <ellipse cx="20" cy="36" rx="8" ry="2" fill="rgba(0,0,0,.3)"></ellipse>
+   <path d="M7 20 Q0 16 3 26 Q8 24 12 24 Z" fill="#d9a8f7"></path><path d="M33 20 Q40 16 37 26 Q32 24 28 24 Z" fill="#d9a8f7"></path>
+   <path d="M20 32 l-4 6 h8 Z" fill="#d9a8f7"></path>
+   <ellipse cx="20" cy="20" rx="9" ry="11" fill="#c77cf0"></ellipse><ellipse cx="20" cy="20" rx="9" ry="11" fill="url(#gg)"></ellipse>
+   <path d="M20 8 L17 4 L20 6 L23 4 Z" fill="#efd8ff"></path>
+   <circle cx="20" cy="24" r="2.2" fill="#efd8ff" opacity=".7"></circle><circle cx="16" cy="17" r="1.7" fill="#2a0a3a"></circle><circle cx="24" cy="17" r="1.7" fill="#2a0a3a"></circle>
+   <path d="M20 21 l-3 3 h6 Z" fill="#efd8ff"></path></svg></div></div>
+    <h1><span class="t1">アシッド</span><span class="t2">モンスター</span></h1>
+    <div class="sub">酸と塩基・pH・中和・滴定を学ぶモンスターバトル</div>
+    <div class="nameField"><input id="nameInput" maxlength="8" placeholder="トレーナー名（8字まで）" autocomplete="off"></div>
+    <div>
+      <button class="startBtn" id="newBtn">▶ はじめる</button>
+      <button class="startBtn alt" id="contBtn" style="display: inline-block;">つづきから</button>
+    </div>
+    <button class="iconBtn" id="resetBtn">セーブ削除</button>
+    <div class="tip">移動 = 十字キー・マップをタップ・矢印/WASD　会話 = タップ/Space　メニュー = ☰/M<br>草むらで出会い、技で化学クイズに正解して戦う。相性とコンボを活かし、弱らせて捕獲。<br>アリーナでCPUに挑戦（バッジ）。⚔で登録者と自由対戦、📋で編成登録、🏆でランキング！</div>
   </div>
 
-  <!-- BATTLE -->
-  <div id="battle">
-    <div class="bfield">
-      <div class="brow foe">
-        <div class="bart" id="foeArt"></div>
-        <div class="bcard"><div class="bname"><span id="foeName">―</span><span id="foeType"></span></div>
-          <div class="blv" id="foeLv">Lv―</div><div class="hpline"><span id="foeHp" style="width:100%"></span></div></div>
-      </div>
-      <div class="bmid"><span class="partyDots" id="partyDots"></span><span class="combo" id="comboTag"></span></div>
-      <div class="brow me">
-        <div class="bart" id="myArt"></div>
-        <div class="bcard"><div class="bname"><span id="myName">―</span><span id="myType"></span></div>
-          <div class="blv" id="myLv">Lv―</div><div class="hpline"><span id="myHp" style="width:100%"></span></div>
-          <div class="hptxt" id="myHpTxt"></div><div class="xpline"><span id="myExp" style="width:0%"></span></div></div>
-      </div>
-    </div>
-    <div id="battleMenu"></div>
-    <div id="quizArea" style="display:none;">
-      <div class="quizMove" id="quizMove"></div>
-      <div class="quizQ" id="quizQ"></div>
-      <div id="quizChoices"></div>
-    </div>
+  <!-- STARTER -->
+  <div id="starterModal">
+    <h2>最初の相棒を選ぼう</h2>
+    <div class="sub">酸・塩基・塩、3タイプから1体</div>
+    <div id="starterChoices"></div>
   </div>
 
-  <div id="log"><span class="sys">▶ </span>「はじめる」を押して冒険へ。</div>
-
-  <footer>移動 ← ↑ → ↓ / WASD　｜　会話 Space　｜　メニュー M
-    <div class="dpad"><div class="spacer"></div><button data-d="up">↑</button><div class="spacer"></div><button data-d="left">←</button><button data-d="down">↓</button><button data-d="right">→</button></div>
-  </footer>
+  <!-- ENDING -->
+  <div id="ending"><div class="edScroll" id="edScroll"></div><button class="startBtn" id="edClose">▶ アリーナへ戻る</button></div>
 </div>
 <div id="toast"></div>
 
@@ -364,6 +622,8 @@
    ========================================================= */
 function ri(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
 function pick(a){return a[Math.floor(Math.random()*a.length)];}
+/* 数字を上付き文字に（指数表記用）: sup(-3)→"⁻³" */
+function sup(n){const m={"0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹","-":"⁻"};return String(n).split("").map(c=>m[c]||c).join("");}
 function fmt(n){ n=Math.round(n*1000)/1000; return Number.isInteger(n)?String(n):String(n); }
 /* 数値選択肢を安全生成（正解と誤答が絶対に重複しない） */
 function mc(correct, unit, wrongNums){
@@ -379,25 +639,54 @@ function mc(correct, unit, wrongNums){
 /* ===== 属性（タイプ） ===== */
 /* acid 酸性 / base 塩基性 / neutral 中和 / indicator 指示薬 / titration 滴定 / ion イオン(pH・濃度) */
 const TYPES = {
-  acid:      {name:"酸", color:"#f0566e", icon:"🔴"},
-  base:      {name:"塩基", color:"#4a8af0", icon:"🔵"},
-  neutral:   {name:"中和", color:"#7fe0a0", icon:"🟢"},
-  indicator: {name:"指示薬", color:"#c77cf0", icon:"🟣"},
-  titration: {name:"滴定", color:"#f0b73a", icon:"🟠"},
-  ion:       {name:"イオン", color:"#4fd8c8", icon:"🟡"},
+  acid:      {name:"酸", color:"#ff4d6d", icon:"🔴"},
+  base:      {name:"塩基", color:"#3d7bff", icon:"🔵"},
+  neutral:   {name:"塩", color:"#1fb866", icon:"🟢"}, /* キーは neutral のまま（セーブ互換）。表示名は「塩」 */
+  indicator: {name:"指示薬", color:"#b25cf0", icon:"🟣"},
+  titration: {name:"滴定", color:"#ff9a1f", icon:"🟠"},
+  ion:       {name:"イオン", color:"#10b3c8", icon:"🟡"},
+  normal:    {name:"無", color:"#8a8fa8", icon:"⚪"}, /* 無属性（相性表に含めない＝常に等倍） */
 };
 /* 相性: attacker -> defender 倍率。2=効果抜群, 0.5=いまひとつ, 1=等倍
-   設計の筋: 酸⇔塩基は互いに抜群(中和の主役)。中和は酸・塩基に強い。
-   指示薬は滴定・イオンの"見える化"で強い。滴定は中和・イオンに強い。イオンは指示薬・酸塩基の土台で均衡。 */
+   設計の筋: 酸⇔塩基は互いに抜群(中和の主役)。
+   塩(neutral)は個体ごとに液性を持つ（SALTS）。酸性の塩は「酸」、塩基性の塩は「塩基」として相性を計算し、
+   中性の塩は酸・塩基に対して等倍（中和しても何でも打ち消せるわけではない）。→ typeMulMon()
+   指示薬は滴定・イオンの"見える化"で強い。滴定は中和(塩)・イオンに強い。イオンは指示薬・酸塩基の土台で均衡。 */
 const CHART = {
-  acid:      {base:2,   neutral:0.5, titration:1,   ion:1,   indicator:1,   acid:1},
-  base:      {acid:2,   neutral:0.5, titration:1,   ion:1,   indicator:1,   base:1},
-  neutral:   {acid:2,   base:2,      ion:0.5,       titration:1, indicator:1, neutral:1},
+  acid:      {base:2,   neutral:1,   titration:1,   ion:1,   indicator:1,   acid:1},
+  base:      {acid:2,   neutral:1,   titration:1,   ion:1,   indicator:1,   base:1},
+  neutral:   {acid:1,   base:1,      ion:0.5,       titration:1, indicator:1, neutral:1},
   indicator: {titration:2, ion:2,    acid:0.5,      base:0.5, neutral:1,     indicator:1},
   titration: {neutral:2, ion:2,      indicator:0.5, acid:1,   base:1,        titration:1},
   ion:       {indicator:2, acid:1,   base:1,        neutral:1, titration:0.5, ion:1},
 };
 function typeMul(atk,def){ return (CHART[atk] && CHART[atk][def]!==undefined) ? CHART[atk][def] : 1; }
+
+/* ===== 塩（タスク4 案B）=====
+   塩タイプの個体は salt（下のキー）を持つ。液性は元の酸・塩基の強弱から求める（手で書かない）:
+   強酸＋強塩基→中性 / 弱酸＋強塩基→塩基性 / 強酸＋弱塩基→酸性 */
+const SALTS={
+  NaCl:    {name:"塩化ナトリウム",   formula:"NaCl",     acid:"塩酸 HCl",        acidStrong:true,  base:"水酸化ナトリウム NaOH", baseStrong:true},
+  Na2SO4:  {name:"硫酸ナトリウム",   formula:"Na₂SO₄",   acid:"硫酸 H₂SO₄",      acidStrong:true,  base:"水酸化ナトリウム NaOH", baseStrong:true},
+  CH3COONa:{name:"酢酸ナトリウム",   formula:"CH₃COONa", acid:"酢酸 CH₃COOH",    acidStrong:false, base:"水酸化ナトリウム NaOH", baseStrong:true},
+  NH4Cl:   {name:"塩化アンモニウム", formula:"NH₄Cl",    acid:"塩酸 HCl",        acidStrong:true,  base:"アンモニア NH₃",        baseStrong:false},
+};
+const DEFAULT_SALT="NaCl"; /* 古いセーブ・未指定のトレーナー編成 */
+const LIQ={neutral:{name:"中性",as:null},basic:{name:"塩基性",as:"base"},acidic:{name:"酸性",as:"acid"}};
+function saltLiq(key){const S=SALTS[key]||SALTS[DEFAULT_SALT];
+  return S.acidStrong===S.baseStrong?"neutral":(S.baseStrong?"basic":"acidic");}
+function saltOrigin(key){const S=SALTS[key]||SALTS[DEFAULT_SALT];return (S.acidStrong?"強酸":"弱酸")+"＋"+(S.baseStrong?"強塩基":"弱塩基");}
+function isSaltSp(spKey){return !!SPECIES[spKey]&&SPECIES[spKey].type==="neutral";}
+function validSalt(k){return typeof k==="string"&&Object.prototype.hasOwnProperty.call(SALTS,k);}
+/* 個体の「防御側」タイプ: 酸性・塩基性の塩は acid/base として扱う */
+function monType(mon){const t=SPECIES[mon.sp].type; if(t!=="neutral")return t;
+  return LIQ[saltLiq(mon.salt)].as||"neutral";}
+/* 技の「攻撃側」タイプ: 塩の個体が塩タイプの技を使うと、その液性（酸/塩基）としてはたらく */
+function moveTypeFor(mv,attacker){ if(mv.type!=="neutral"||!attacker||!isSaltSp(attacker.sp))return mv.type;
+  return LIQ[saltLiq(attacker.salt)].as||"neutral";}
+function typeMulMon(mv,attacker,defender){return typeMul(moveTypeFor(mv,attacker),monType(defender));}
+/* 表示用 "CH₃COONa（塩基性）" */
+function saltLabel(key,showLiq){const S=SALTS[key]||SALTS[DEFAULT_SALT];return S.formula+(showLiq?"（"+LIQ[saltLiq(key)].name+"）":"");}
 
 /* ===== 技（技=クイズ）=====
    各技: name, type, power(基礎威力), acc(基礎命中…クイズ正解で発動), qkey(問題プール)
@@ -422,7 +711,7 @@ const MOVES = {
   phScan:{name:"pHスキャン", type:"ion", power:35, qkey:"ph_basic"},
   ionBurst:{name:"イオン濃度バースト", type:"ion", power:55, qkey:"ph_calc"},
   // 無属性（基本技・全員）
-  tackle:{name:"ビーカータックル", type:"neutral", power:28, qkey:"mixed_easy"},
+  tackle:{name:"ビーカータックル", type:"normal", power:28, qkey:"mixed_easy"},
 };
 
 /* ===== 問題プール ===== */
@@ -434,6 +723,8 @@ const QUESTIONS = {
     {q:"次のうち酸はどれ？", correct:"塩酸 HCl", wrong:["水酸化ナトリウム NaOH","アンモニア NH₃","食塩 NaCl"]},
     {q:"酸が金属（亜鉛など）と反応して発生する気体は？", correct:"水素 H₂", wrong:["酸素 O₂","二酸化炭素 CO₂","塩素 Cl₂"]},
     {q:"アレニウスの定義で酸とは？", correct:"水溶液中で H⁺ を出す物質", wrong:["水溶液中で OH⁻ を出す物質","電子を受け取る物質","中性を保つ物質"]},
+    {q:"ブレンステッド・ローリーの定義で酸とは？", correct:"H⁺(プロトン)を与える物質", wrong:["H⁺を受け取る物質","電子を与える物質","OH⁻を受け取る物質"]},
+    {q:"酸性水溶液中で最も多いイオンは？", correct:"水素イオン H⁺(オキソニウム H₃O⁺)", wrong:["水酸化物イオン OH⁻","ナトリウムイオン Na⁺","塩化物イオン Cl⁻だけ"]},
   ],
   /* --- 酸 応用（強弱・価数） --- */
   acid_strong:[
@@ -450,6 +741,8 @@ const QUESTIONS = {
     {q:"次のうち塩基はどれ？", correct:"水酸化ナトリウム NaOH", wrong:["塩酸 HCl","硫酸 H₂SO₄","硝酸 HNO₃"]},
     {q:"塩基性水溶液にフェノールフタレインを加えると？", correct:"赤色になる", wrong:["無色のまま","青色になる","黄色になる"]},
     {q:"アレニウスの定義で塩基とは？", correct:"水溶液中で OH⁻ を出す物質", wrong:["水溶液中で H⁺ を出す物質","水素を出す物質","中性の物質"]},
+    {q:"ブレンステッド・ローリーの定義で塩基とは？", correct:"H⁺(プロトン)を受け取る物質", wrong:["H⁺を与える物質","電子を受け取る物質","OH⁻を与える物質のみ"]},
+    {q:"塩基性水溶液がぬるぬるした感触を示すのは主に何イオンのため？", correct:"水酸化物イオン OH⁻", wrong:["水素イオン H⁺","塩化物イオン Cl⁻","硫酸イオン SO₄²⁻"]},
   ],
   /* --- 塩基 応用 --- */
   base_strong:[
@@ -466,11 +759,12 @@ const QUESTIONS = {
     {q:"塩酸と水酸化ナトリウムの中和でできる塩は？", correct:"塩化ナトリウム NaCl", wrong:["硫酸ナトリウム","硝酸カリウム","炭酸カルシウム"]},
     {q:"中和反応を一般式で表すと？", correct:"酸 + 塩基 → 塩 + 水", wrong:["酸 + 塩 → 塩基 + 水","塩基 + 水 → 酸 + 塩","酸 + 水 → 塩 + 塩基"]},
     {q:"ちょうど中和したとき、過不足なく反応するのは？", correct:"酸のH⁺の物質量 = 塩基のOH⁻の物質量", wrong:["酸の体積 = 塩基の体積","酸の質量 = 塩基の質量","酸の濃度 = 塩基の濃度"]},
+    {q:"中和反応は熱の出入りでいうと？", correct:"発熱反応（中和熱が出る）", wrong:["吸熱反応","熱の出入りはない","爆発反応"]},
   ],
   /* --- 塩 --- */
   salt:[
     {q:"硫酸と水酸化ナトリウムの中和でできる塩は？", correct:"硫酸ナトリウム Na₂SO₄", wrong:["塩化ナトリウム NaCl","硝酸ナトリウム NaNO₃","炭酸ナトリウム Na₂CO₃"]},
-    {q:"正塩はどれ？", correct:"塩化ナトリウム NaCl", wrong:["炭酸水素ナトリウム NaHCO₃","硫酸水素ナトリウム NaHSO₄","塩化水酸化物"]},
+    {q:"正塩はどれ？", correct:"塩化ナトリウム NaCl", wrong:["炭酸水素ナトリウム NaHCO₃","硫酸水素ナトリウム NaHSO₄","塩化水酸化マグネシウム MgCl(OH)"]},
     {q:"酸性塩はどれ？", correct:"炭酸水素ナトリウム NaHCO₃", wrong:["塩化ナトリウム NaCl","硫酸ナトリウム Na₂SO₄","硝酸カリウム KNO₃"]},
     {q:"塩化ナトリウム水溶液の液性は？", correct:"中性（強酸+強塩基の正塩）", wrong:["酸性","塩基性","強酸性"]},
     {q:"酢酸ナトリウム水溶液の液性は？", correct:"塩基性（弱酸+強塩基の塩）", wrong:["酸性","中性","強酸性"]},
@@ -499,18 +793,20 @@ const QUESTIONS = {
     {q:"pHが7より大きい水溶液は？", correct:"塩基性", wrong:["酸性","中性","すべて酸性"]},
     {q:"pHが小さいほど水溶液は？", correct:"酸性が強い（H⁺が多い）", wrong:["塩基性が強い","中性に近い","OH⁻が多い"]},
     {q:"水のイオン積 Kw = [H⁺][OH⁻] の値(25℃)は？", correct:"1.0×10⁻¹⁴ (mol/L)²", wrong:["1.0×10⁻⁷","1.0×10⁻¹⁴ mol/L","7"]},
+    {q:"25℃で pH + pOH はいくつ？", correct:"14", wrong:["7","10","1"]},
+    {q:"pHを1つ小さくすると[H⁺]は？", correct:"10倍になる", wrong:["1/10になる","2倍になる","変わらない"]},
   ],
   /* --- pH 計算（生成） --- */
   ph_calc:[
     {gen:()=>{const n=pick([1,2,3,4,5]);const w=["pH = "+(n+1),"pH = "+(n+2),"pH = "+(14-n)];
-      return {q:"[H⁺] = 1.0×10⁻"+n+" mol/L の水溶液のpHは？",correct:"pH = "+n,wrong:w};}},
-    {gen:()=>{const p=pick([2,3,4,5]);return {q:"pH = "+p+" の水溶液の [H⁺] は？",correct:"1.0×10⁻"+p+" mol/L",
-      wrong:["1.0×10⁻"+(p+1)+" mol/L","1.0×10⁻"+(p-1)+" mol/L","1.0×10"+p+" mol/L"]};}},
+      return {q:"[H⁺] = 1.0×10"+sup(-n)+" mol/L の水溶液のpHは？",correct:"pH = "+n,wrong:w};}},
+    {gen:()=>{const p=pick([2,3,4,5]);return {q:"pH = "+p+" の水溶液の [H⁺] は？",correct:"1.0×10"+sup(-p)+" mol/L",
+      wrong:["1.0×10"+sup(-(p+1))+" mol/L","1.0×10"+sup(-(p-1))+" mol/L","1.0×10"+sup(p)+" mol/L"]};}},
     {gen:()=>{const c=pick([1,2,3]);const conc=(c===1?"0.1":c===2?"0.01":"0.001");const p=c; /* 0.1M→pH1, 0.01M→pH2, 0.001M→pH3 */
       return {q:conc+" mol/L の塩酸(HCl, 1価・完全電離)のpHは？",correct:"pH = "+p,
       wrong:["pH = "+(p+1),"pH = "+(p+2),"pH = "+(14-p)]};}},
     {gen:()=>{const n=pick([9,10,11,12])-7;const pOH=14-(7+n);
-      return {q:"[OH⁻] = 1.0×10⁻"+pOH+" mol/L の水溶液のpHは？",correct:"pH = "+(14-pOH),
+      return {q:"[OH⁻] = 1.0×10"+sup(-pOH)+" mol/L の水溶液のpHは？",correct:"pH = "+(14-pOH),
       wrong:["pH = "+pOH,"pH = "+(14-pOH+1),"pH = "+(14-pOH-1)]};}},
     {q:"pH=2 と pH=4 の水溶液、[H⁺]は何倍違う？", correct:"100倍", wrong:["2倍","10倍","1000倍"]},
   ],
@@ -545,7 +841,59 @@ const QUESTIONS = {
     {q:"酸＋塩基 →？ + 水", correct:"塩", wrong:["金属","気体のみ","酸化物"]},
     {q:"H⁺を出すのは？", correct:"酸", wrong:["塩基","塩","水だけ"]},
     {q:"OH⁻を出すのは？", correct:"塩基", wrong:["酸","塩","砂糖"]},
+    {q:"pHが1大きくなると水素イオン濃度は？", correct:"1/10になる", wrong:["10倍になる","変わらない","2倍になる"]},
+    {q:"BTB溶液が中性で示す色は？", correct:"緑", wrong:["黄","青","赤"]},
   ],
+
+  /* ============================================================
+     四天王・博士・Administrator専用: 構造理解型(成立条件・前提を問う)
+     「その現象・公式・操作が成り立つための条件/前提は何か」を考えさせる
+     ============================================================ */
+  hard_acid:[
+    {q:"「強酸＝危険・濃い」ではない。強酸を『強い』と呼べる本質的な条件は？", correct:"水中でほぼ完全に電離する(電離度≈1)こと", wrong:["濃度が高いこと","分子量が大きいこと","沸点が高いこと"]},
+    {q:"同じモル濃度でも塩酸の方が酢酸よりpHが小さい。この差が生じる前提は？", correct:"電離度が異なり、生じるH⁺濃度が違うこと", wrong:["分子の大きさが違うこと","色が違うこと","温度が違うこと"]},
+    {q:"「酸の価数が大きいほど酸性が強い」とは限らない。価数が効くのはどんな条件のときか？", correct:"電離度が同程度のときに限り、放出できるH⁺の数で差が出る", wrong:["常に価数だけで強さが決まる","価数は強さに無関係","濃度が0のとき"]},
+    {q:"pH=−log[H⁺] で酢酸のpHを価数と濃度だけから単純計算すると誤る。その理由は？", correct:"弱酸は完全電離しないので[H⁺]が濃度と一致しないため", wrong:["対数が使えないため","酢酸に水素がないため","温度が関係ないため"]},
+  ],
+  hard_base:[
+    {q:"アンモニアNH₃はOH⁻を分子内に持たないのに塩基性を示す。成立に必要な前提は？", correct:"水と反応してOH⁻を生じる(NH₃+H₂O→NH₄⁺+OH⁻)こと", wrong:["NH₃がOH基を含むこと","水が酸であること","光が当たること"]},
+    {q:"「塩基はすべて金属の水酸化物」と考えると説明できない物質がある。それは？", correct:"アンモニアのように水酸化物でない塩基", wrong:["NaOH","KOH","Ca(OH)₂"]},
+    {q:"強塩基でも薄めればpHは7に近づく。この前提として必要な考え方は？", correct:"OH⁻濃度が下がるとpOHが大きくなりpHが下がること", wrong:["塩基が酸に変わること","水が蒸発すること","電離度が10を超えること"]},
+  ],
+  hard_neutral:[
+    {q:"中和は「酸と塩基を混ぜれば必ず中性」ではない。中性になる条件は？", correct:"酸のH⁺の物質量と塩基のOH⁻の物質量が過不足なく等しいこと", wrong:["体積を等しくすること","濃度を等しくすること","同じ色にすること"]},
+    {q:"強酸+弱塩基の塩(例: NH₄Cl)の水溶液が酸性になる前提は？", correct:"弱塩基由来のイオンが加水分解してH⁺を生じること", wrong:["塩が酸でできているから","水が酸性だから","塩に塩素があるから"]},
+    {q:"「中和点＝pH7」は常には成り立たない。pH7になる条件は？", correct:"強酸と強塩基の中和のとき(生じる塩が加水分解しない)", wrong:["どんな中和でも必ず7","弱酸弱塩基のとき","指示薬を入れたとき"]},
+    {q:"中和の量的関係 n(H⁺)=n(OH⁻) を使う前提として正しいのは？", correct:"価数×モル濃度×体積でH⁺・OH⁻の物質量を数えていること", wrong:["体積だけ等しければよい","質量が等しいこと","密度が等しいこと"]},
+  ],
+  hard_indicator:[
+    {q:"フェノールフタレインは強酸+強塩基には使えるが、ある滴定には不向き。その判断に必要な条件は？", correct:"指示薬の変色域が中和点のpHを含むこと", wrong:["指示薬の色が濃いこと","指示薬が安いこと","指示薬が液体であること"]},
+    {q:"弱酸を強塩基で滴定するとき中和点は塩基性側にある。適する指示薬の条件は？", correct:"変色域が塩基性側(例: フェノールフタレイン)にあること", wrong:["変色域が酸性側にあること","無色であること","どれでも同じ"]},
+    {q:"「指示薬で正確な中和点が分かる」が成り立つための前提は？", correct:"指示薬の変色域とその滴定の中和点のpHが一致していること", wrong:["指示薬を大量に入れること","室温が高いこと","ビュレットが新しいこと"]},
+  ],
+  hard_titration:[
+    {q:"中和滴定の計算 c₁V₁×価数=c₂V₂×価数 が成り立つ最も重要な前提は？", correct:"中和点で酸のH⁺と塩基のOH⁻の物質量が等しいこと", wrong:["ビュレットが透明なこと","指示薬が赤いこと","体積が等しいこと"]},
+    {q:"滴定でコニカルビーカーは純水で濡れたままでよいが、ビュレットはだめ。その理由(前提)は？", correct:"ビュレットが濡れていると滴下する溶液の濃度が変わり物質量がずれるため", wrong:["ビーカーは割れやすいから","ビュレットは重いから","水が反応するから"]},
+    {q:"「中和点＝滴定の終点」とみなせるのはどんな条件のときか？", correct:"指示薬の変色が中和点のpHで起こるように選んであるとき", wrong:["常に一致する","終点は関係ない","色がつけば何でもよい"]},
+    {q:"滴定曲線でpHが急変(ジャンプ)する領域が現れる前提は？", correct:"中和点付近でわずかな滴下量の差が大きなpH変化を生むこと", wrong:["指示薬を入れたこと","温度が一定なこと","濃度が0なこと"]},
+    {q:"0.10mol/L の硫酸(2価)20mLを 0.10mol/L NaOH(1価)で中和するのに必要なNaOHは？", correct:"40 mL（価数を2倍で数える）", wrong:["20 mL","10 mL","80 mL"]},
+    {q:"食酢中の酢酸濃度を中和滴定で求めるとき、濃い食酢をそのまま滴定しない理由は？", correct:"滴下量が多くなり精度が落ちるため、正確に希釈してから滴定する", wrong:["酢酸が蒸発するから","色がつくから","滴定に酸は使えないから"]},
+  ],
+  hard_ion:[
+    {q:"pH=−log[H⁺] という式を使う大前提は？", correct:"[H⁺]を mol/L で表していること", wrong:["温度が100℃であること","[H⁺]をg/Lで表すこと","pHが整数であること"]},
+    {q:"「pH+pOH=14」が成り立つのはどんな条件か？", correct:"25℃(水のイオン積 Kw=1.0×10⁻¹⁴)のとき", wrong:["どんな温度でも必ず14","0℃のときだけ","指示薬があるとき"]},
+    {q:"強酸を10倍に薄めるとpHが約1増える。この近似が成り立つ前提は？", correct:"薄めても水の電離の寄与が無視でき、[H⁺]が1/10になること", wrong:["酸が塩基に変わること","pHが必ず7になること","体積が変わらないこと"]},
+    {q:"中性で[H⁺]=[OH⁻]=1.0×10⁻⁷ となる前提は？", correct:"25℃で水のイオン積 Kw=[H⁺][OH⁻]=1.0×10⁻¹⁴ が成り立つこと", wrong:["酸を加えたこと","温度が無関係なこと","pHが0のこと"]},
+    {q:"0.010mol/L の NaOH水溶液(強塩基・完全電離)のpHは？(25℃)", correct:"12", wrong:["2","10","7"]},
+    {q:"pH=3 の塩酸を水で100倍に薄めると、pHはおよそ？", correct:"5（[H⁺]が1/100で約2増える）", wrong:["1","7以上","変わらず3"]},
+    {q:"0.1mol/L 酢酸(電離度0.01)の[H⁺]はおよそ？", correct:"1.0×10⁻³ mol/L（濃度×電離度）", wrong:["0.1 mol/L","1.0×10⁻¹ mol/L","1.0×10⁻⁷ mol/L"]},
+  ],
+};
+
+/* 四天王・博士・Administrator が使う構造理解型プールへの対応(技の属性→hardプール) */
+const ELITE_HARD = {
+  acid:"hard_acid", base:"hard_base", neutral:"hard_neutral",
+  indicator:"hard_indicator", titration:"hard_titration", ion:"hard_ion"
 };
 
 /* ===== モンスター種族 =====
@@ -567,9 +915,9 @@ const SPECIES = {
   baselith:{name:"ベースリス", type:"base", base:{hp:88,atk:90,spd:78}, look:{shape:"golem",pal:"base",tier:3},
     learnset:[{lv:1,move:"strongBase"},{lv:1,move:"hydroxide"},{lv:1,move:"neutralize"}], evo:null},
   /* 中和ライン */
-  neuto:{name:"ニュート", type:"neutral", base:{hp:55,atk:48,spd:50}, look:{shape:"blob",pal:"neutral",tier:1},
+  neuto:{name:"ニュート", type:"neutral", base:{hp:60,atk:48,spd:50}, look:{shape:"blob",pal:"neutral",tier:1},
     learnset:[{lv:1,move:"tackle"},{lv:1,move:"neutralize"},{lv:12,move:"saltForm"}], evo:{to:"neuton",lv:20}},
-  neuton:{name:"ニュートン", type:"neutral", base:{hp:78,atk:66,spd:62}, look:{shape:"golem",pal:"neutral",tier:2},
+  neuton:{name:"ニュートン", type:"neutral", base:{hp:84,atk:66,spd:62}, look:{shape:"golem",pal:"neutral",tier:2},
     learnset:[{lv:1,move:"neutralize"},{lv:1,move:"saltForm"},{lv:26,move:"burette"}], evo:null},
   /* 指示薬ライン */
   litmon:{name:"リトモン", type:"indicator", base:{hp:44,atk:54,spd:60}, look:{shape:"sprite",pal:"indicator",tier:1},
@@ -598,13 +946,13 @@ const WILD = {
 /* 対戦相手トレーナー（ジム/ランク）: ローカル。後でFirebaseから差し替え可能 */
 const TRAINERS = [
   {id:"t_lin", name:"見習い リン", rank:1, color:"#7fe0a0",
-   team:[{sp:"litmon",lv:8},{sp:"ionix",lv:8},{sp:"neuto",lv:9}],
+   team:[{sp:"litmon",lv:8},{sp:"ionix",lv:8},{sp:"neuto",lv:9,salt:"NaCl"}],
    intro:"指示薬の色、覚えてきた？ 腕試しといこう！", lose:"わあ、強い…！ リトマスの色、完璧だね。"},
   {id:"t_ken", name:"実験部 ケン", rank:2, color:"#f0566e",
    team:[{sp:"acidon",lv:14},{sp:"buretta",lv:13},{sp:"baseon",lv:14}],
    intro:"酸の強さ、甘く見るなよ。中和できるものならしてみろ！", lose:"ぐ…酸と塩基のバランス、見事だ。"},
   {id:"t_mai", name:"滴定の名手 マイ", rank:3, color:"#f0b73a",
-   team:[{sp:"titanova",lv:20},{sp:"phenox",lv:19},{sp:"neuton",lv:20}],
+   team:[{sp:"titanova",lv:20},{sp:"phenox",lv:19},{sp:"neuton",lv:20,salt:"CH3COONa"}],
    intro:"中和点を正確に捉えられる？ ビュレット、構えて。", lose:"見事な滴定。あなたは正確さを手に入れた。"},
   {id:"t_rei", name:"pHマスター レイ", rank:4, color:"#4fd8c8",
    team:[{sp:"ionlord",lv:25},{sp:"acidon",lv:24},{sp:"baselith",lv:25}],
@@ -617,7 +965,7 @@ const TRAINERS = [
 /* 隠しボス: 全トレーナー撃破後に出現する最強の管理者 */
 const ADMIN_TRAINER = {
   id:"t_admin", name:"Administrator", rank:99, color:"#f0566e", admin:true,
-  team:[{sp:"acidrake",lv:45},{sp:"baselith",lv:45},{sp:"titanova",lv:44},{sp:"phenox",lv:44},{sp:"ionlord",lv:43},{sp:"neuton",lv:43}],
+  team:[{sp:"acidrake",lv:45},{sp:"baselith",lv:45},{sp:"titanova",lv:44},{sp:"phenox",lv:44},{sp:"ionlord",lv:43},{sp:"neuton",lv:43,salt:"NH4Cl"}],
   intro:"ようこそ、塔の頂へ。全てを修めた君に、管理者権限をかけて挑もう。――全知識を、ここで示せ。",
   lose:"……認証完了。君はこの塔の、真の管理者だ。おめでとう。"
 };
@@ -628,6 +976,192 @@ BOSS_LINES[ADMIN_TRAINER.id]={intro:ADMIN_TRAINER.intro,lose:ADMIN_TRAINER.lose}
 /* Administrator出現条件: CPUトレーナー全員を撃破済み */
 function adminUnlocked(){ return TRAINERS.every(t=>state.beaten.includes(t.id)); }
 
+</script>
+<script id="chemScript">
+/* =========================================================
+   中和滴定の化学モデル（純粋関数・テスト可能）
+   ・pH は電荷収支式を [H⁺] について二分法で厳密に解く（近似式の場合分けをしない）
+   ・25℃, Kw=1.0×10⁻¹⁴。強酸・強塩基は完全電離。H₂SO₄ は化学基礎の扱いで2段とも完全電離とみなす
+   ========================================================= */
+const KW=1.0e-14;
+/* 種族ごとの物質データ（酸・塩基タイプのみ）。SPECIES のキーは変えずに付与 */
+const CHEM={
+  acidling:{name:"酢酸",formula:"CH₃COOH",kind:"acid",strong:false,z:1,K:1.8e-5},
+  acidon:  {name:"塩酸",formula:"HCl",kind:"acid",strong:true,z:1},
+  acidrake:{name:"硫酸",formula:"H₂SO₄",kind:"acid",strong:true,z:2},
+  baseling:{name:"アンモニア水",formula:"NH₃",kind:"base",strong:false,z:1,K:1.8e-5},
+  baseon:  {name:"水酸化ナトリウム水溶液",formula:"NaOH",kind:"base",strong:true,z:1},
+  baselith:{name:"水酸化バリウム水溶液",formula:"Ba(OH)₂",kind:"base",strong:true,z:2}, /* Ca(OH)₂は溶解度が小さいので滴定の題材にはBa(OH)₂ */
+};
+/* 指示書どおり SPECIES[k].chem からも参照できるようにする（キー・既存フィールドは変更しない） */
+Object.keys(CHEM).forEach(k=>{ if(SPECIES[k]) SPECIES[k].chem=CHEM[k]; });
+const TIT={V0:10.00, Ct:0.100, concs:[0.050,0.080,0.100,0.120]};
+/* 指示薬: lo〜hi が変色域。colors は [酸性側, 塩基性側] */
+const INDICATORS={
+  phenol:{name:"フェノールフタレイン",lo:8.0,hi:9.8,acidCol:[255,255,255,0],baseCol:[214,36,128,0.85],desc:"pH 8.0〜9.8　無色 → 赤"},
+  mo:    {name:"メチルオレンジ",lo:3.1,hi:4.4,acidCol:[222,52,44,0.85],baseCol:[242,196,30,0.85],desc:"pH 3.1〜4.4　赤 → 黄"},
+};
+function titrant(an){return an.kind==="acid"?{name:"水酸化ナトリウム水溶液",formula:"NaOH"}:{name:"塩酸",formula:"HCl"};}
+function eqVolume(an,C0){return an.z*C0*TIT.V0/TIT.Ct;}
+/* 混合溶液の pH（一般形）。comps=[{s:物質データ(CHEM形式), mol:物質の物質量}], VmL=全体積
+   電荷収支  [H⁺] + Σ陽イオン = [OH⁻] + Σ陰イオン  を log[H⁺] について二分法で解く
+   ・強酸の陰イオン: 価数×C（Cl⁻, SO₄²⁻）/ 弱酸: C·Ka/(Ka+[H⁺])（CH₃COO⁻）
+   ・強塩基の陽イオン: 価数×C（Na⁺, Ba²⁺）/ 弱塩基: C·[H⁺]/([H⁺]+Ka)、Ka=Kw/Kb（NH₄⁺） */
+function solveMixPH(comps,VmL){
+  const L=VmL/1000;
+  const f=h=>{let pos=h,neg=KW/h;
+    for(const c of comps){ if(!c.mol)continue; const C=c.mol/L, s=c.s;
+      if(s.kind==="acid") neg+= s.strong? s.z*C : C*s.K/(s.K+h);
+      else if(s.kind==="base"){ const Ka=KW/(s.K||1); pos+= s.strong? s.z*C : C*h/(h+Ka); } }
+    return pos-neg;};
+  let lo=-16,hi=1;
+  for(let i=0;i<80;i++){const mid=(lo+hi)/2; if(f(Math.pow(10,mid))>0)hi=mid; else lo=mid;}
+  return -(lo+hi)/2;
+}
+/* 滴下量 v(mL) のときの pH（捕獲ミニゲーム用。滴定剤は 0.100 mol/L の NaOH / HCl） */
+function solvePH(an,C0,v){
+  const tr=an.kind==="acid"?CHEM.baseon:CHEM.acidon;
+  return solveMixPH([{s:an,mol:C0*TIT.V0/1000},{s:tr,mol:TIT.Ct*v/1000}],TIT.V0+v);
+}
+/* 指示薬の色（pHから連続補間） → "rgba(...)" */
+function indicatorRGBA(ind,pH){
+  const t=clamp01((pH-ind.lo)/(ind.hi-ind.lo));
+  const a=ind.acidCol,b=ind.baseCol;
+  // メチルオレンジは赤→橙→黄に見えるよう、そのまま線形補間で橙を通る
+  const c=a.map((x,i)=>x+(b[i]-x)*t);
+  return `rgba(${Math.round(c[0])},${Math.round(c[1])},${Math.round(c[2])},${c[3].toFixed(3)})`;
+}
+function clamp01(x){return Math.max(0,Math.min(1,x));}
+/* 滴定の進行方向に見た変色の「始まり」「終わり」の体積(mL)。pH が単調なので二分法 */
+function colorChangeVolumes(an,C0,ind){
+  const up=an.kind==="acid";               // 酸を滴定 → pH は上がる
+  const startPH= up?ind.lo:ind.hi, endPH= up?ind.hi:ind.lo;
+  const vAt=target=>{ let a=0,b=eqVolume(an,C0)*3;
+    const g=v=>up? solvePH(an,C0,v)-target : target-solvePH(an,C0,v);
+    if(g(a)>=0)return 0; // 最初から変色域を超えている
+    for(let i=0;i<60;i++){const m=(a+b)/2; if(g(m)>=0)b=m; else a=m;}
+    return (a+b)/2; };
+  return {begin:vAt(startPH), end:vAt(endPH)};
+}
+/* 許容幅(mL): 中和点の体積に対する割合。最大4%（NH₃×フェノールフタレインの誤差≈5.2%を確実に失敗させる上限） */
+function titTolerance(Veq,hpRatio){return Veq*(0.02+0.02*(1-clamp01(hpRatio)));}
+function liquidity(pH){return pH<6.5?"酸性":(pH>7.5?"塩基性":"中性");}
+/* 成否判定（純粋関数）。v=止めた体積(mL), hpRatio=相手HP/最大HP
+   ・near : |v−Veq| ≤ 許容幅
+   ・indOK: 指示薬の変色（始まり or 終わり）が中和点の最大許容幅(4%)以内で起こるか。
+            化学計算から求めるだけで、種族や指示薬の組み合わせを名指しした特別扱いはしない。
+            不適切な指示薬では色で終点を判断できないので、偶然 Veq 付近で止めても成功にしない。 */
+function titrationJudge(an,C0,indKey,v,hpRatio){
+  const ind=INDICATORS[indKey], Veq=Math.round(eqVolume(an,C0)*100)/100;
+  const tol=titTolerance(Veq,hpRatio), err=v-Veq, near=Math.abs(err)<=tol+1e-9;
+  const cv=colorChangeVolumes(an,C0,ind), tmax=titTolerance(Veq,0);
+  const indOK=Math.abs(cv.begin-Veq)<=tmax||Math.abs(cv.end-Veq)<=tmax;
+  return {ok:near&&indOK,near,indOK,err,tol,Veq,cv,eqPH:solvePH(an,C0,Veq)};
+}
+
+/* =========================================================
+   中和道場（設計: docs/design-neutralization-battle.md）
+   ========================================================= */
+/* ビーカーに入る物質。化学データは CHEM と共有。sp は見た目に使う種族 */
+const SUBST={
+  HCl:{c:CHEM.acidon,sp:"acidon"}, H2SO4:{c:CHEM.acidrake,sp:"acidrake"}, CH3COOH:{c:CHEM.acidling,sp:"acidling"},
+  NaOH:{c:CHEM.baseon,sp:"baseon"}, BaOH2:{c:CHEM.baselith,sp:"baselith"}, NH3:{c:CHEM.baseling,sp:"baseling"},
+  NaCl:{c:{name:"食塩水",formula:"NaCl",kind:"salt"},sp:"neuto"},
+};
+/* 標準液（ビュレットに入れるのは強い酸・塩基だけ） */
+const STD={
+  NaOH:{s:CHEM.baseon,C:0.10,label:"0.10 mol/L 水酸化ナトリウム水溶液 NaOH",short:"NaOH"},
+  HCl: {s:CHEM.acidon,C:0.10,label:"0.10 mol/L 塩酸 HCl",short:"HCl"},
+};
+const BURET_MAX=25.00, DOJO_DMG=0.05;
+/* 中和でできる塩（段5） */
+const SALT_OF={CH3COOH:"CH3COONa",NH3:"NH4Cl",HCl:"NaCl",H2SO4:"Na2SO4"};
+/* 段の定義（本番は固定問題）。show: conc=濃度を見せる / amount=物質量を見せる / ph="live"|"init"|false */
+const DOJO_STAGES=[
+  {no:1,title:"酸・塩基の性質",unit:"指示薬で液性を見分ける",mode:"identify",
+   goal:"ラベルのないビーカーが3つ。調べて、酸性と塩基性のビーカーを中和し、3つとも中性にしよう。",
+   show:{conc:false,amount:"known",ph:false},
+   beakers:[{sub:"NaOH",C:0.10,V:10.0},{sub:"NaCl",C:0,V:10.0},{sub:"HCl",C:0.10,V:15.0}]},
+  {no:2,title:"価数と中和の量",unit:"中和の量的関係",mode:"seq",
+   goal:"濃度と体積から、中和に必要な標準液の体積を計算して注ごう。",
+   show:{conc:true,amount:false,ph:"live"},
+   beakers:[{sub:"HCl",C:0.10,V:15.0},{sub:"H2SO4",C:0.050,V:20.0},{sub:"BaOH2",C:0.050,V:10.0}]},
+  {no:3,title:"強い酸・弱い酸",unit:"酸・塩基の強弱",mode:"seq",
+   goal:"同じ濃度の強い酸・弱い酸・弱い塩基。pH はちがうが、中和に必要な量は？",
+   show:{conc:true,amount:false,ph:"live"},
+   beakers:[{sub:"HCl",C:0.10,V:10.0},{sub:"CH3COOH",C:0.10,V:10.0},{sub:"NH3",C:0.10,V:10.0}]},
+  {no:4,title:"pH から濃度を求める",unit:"水素イオン濃度と pH",mode:"seq",
+   goal:"濃度はわからない。最初に測った pH から [H⁺] を求めて中和しよう。",
+   show:{conc:false,amount:false,ph:"init"},
+   beakers:[{sub:"HCl",pH:2,V:50.0},{sub:"HCl",pH:1,V:12.0},{sub:"H2SO4",pH:1,V:20.0}]},
+  {no:5,title:"中和点と塩",unit:"中和滴定・塩の性質",mode:"titrate",
+   goal:"濃度のわからない相手を、指示薬の色だけで中和しよう。最後に、できた塩の性質を予想する。",
+   show:{conc:false,amount:false,ph:false},
+   beakers:[{sub:"CH3COOH",C:0.080,V:10.0},{sub:"NH3",C:0.10,V:10.0},{sub:"HCl",C:0.12,V:10.0}]},
+];
+/* 数値の表記 */
+function sig2(x){return Number(x).toPrecision(2);}                         // 0.050 / 0.10 / 0.12
+function sci(x,sig){sig=sig||2; if(!x)return "0"; let e=Math.floor(Math.log10(Math.abs(x))+1e-9);
+  let m=Math.round(x/Math.pow(10,e)*Math.pow(10,sig-1))/Math.pow(10,sig-1); if(Math.abs(m)>=10){m/=10;e++;}
+  return m.toFixed(sig-1)+(e===0?"":"×10"+sup(e));}
+/* 段4: pH で指定された強酸の濃度 */
+function specConc(sp){const s=SUBST[sp.sub].c; return sp.pH!=null? Math.pow(10,-sp.pH)/s.z : sp.C;}
+/* ビーカーの状態: comps と体積。net = 残っている酸の当量(mol)。正=酸性側、負=塩基性側 */
+function makeBeaker(sp){const S=SUBST[sp.sub],C=specConc(sp);
+  const b={spec:sp,sub:sp.sub,s:S.c,V:sp.V,comps:S.c.kind==="salt"?[]:[{s:S.c,mol:C*sp.V/1000}],pours:[]};
+  b.net0=beakerNet(b); b.n0=Math.abs(b.net0); b.tol=b.n0>0?0.02*b.n0:2e-5; return b;}
+function beakerNet(b){let n=0;for(const c of b.comps){ if(c.s.kind==="acid")n+=c.s.z*c.mol; else if(c.s.kind==="base")n-=c.s.z*c.mol; }return n;}
+function beakerPH(b){return solveMixPH(b.comps,b.V);}
+function pourInto(b,stdKey,v){const st=STD[stdKey];const mol=st.C*v/1000;b.comps.push({s:st.s,mol});b.V+=v;b.pours.push({std:stdKey,v});return mol*st.s.z;}
+/* 判定: done=中和完了 / exact=ぴったり(0.5%以内) / side=残りの液性 */
+function beakerState(b){const net=beakerNet(b);
+  const done=Math.abs(net)<=b.tol+1e-12, exact=b.n0>0?Math.abs(net)<=0.005*b.n0+1e-12:Math.abs(net)<=1e-12;
+  const side=done?"neutral":(net>0?"acid":"base");
+  const flipped=b.net0!==0&&!done&&Math.sign(net)!==Math.sign(b.net0);
+  return {net,done,exact,side,flipped};}
+/* 正しい標準液と必要量 */
+function dojoAnswer(sp){const S=SUBST[sp.sub].c; if(S.kind==="salt")return null;
+  const std=S.kind==="acid"?"NaOH":"HCl", st=STD[std], n=S.z*specConc(sp)*sp.V/1000;
+  return {std,n,v:Math.round(n/(st.C*st.s.z)*1000*1e6)/1e6};}
+/* 計算の手順（ゲーム内のまとめ画面と、先生用の解答一覧で共通） */
+function dojoSteps(sp){const S=SUBST[sp.sub].c; if(S.kind==="salt")return ["食塩水（NaCl）は中性。中和する必要はない。"];
+  const a=dojoAnswer(sp), st=STD[a.std], ion=S.kind==="acid"?"H⁺":"OH⁻", ion2=S.kind==="acid"?"OH⁻":"H⁺";
+  const kindJ=S.kind==="acid"?"酸":"塩基", L=sp.V/1000, lines=[];
+  if(sp.phShown!=null){ const pOH=14-sp.phShown;
+    lines.push(`pH ＝ ${sp.phShown} だから [H⁺] ＝ 1.0×10${sup(-sp.phShown)} mol/L。`);
+    lines.push(`水のイオン積 [H⁺][OH⁻] ＝ 1.0×10${sup(-14)} (mol/L)² より、[OH⁻] ＝ 1.0×10${sup(-pOH)} mol/L（強塩基なのでこれが ${S.formula} の濃度）。`);
+    lines.push(`OH⁻ の物質量 ＝ 1.0×10${sup(-pOH)} mol/L × ${sp.V.toFixed(1)}/1000 L ＝ ${sci(a.n)} mol`);
+  }else if(sp.pH!=null){
+    lines.push(`pH ＝ ${sp.pH} だから [H⁺] ＝ 1.0×10${sup(-sp.pH)} mol/L（強酸はすべて電離している）。`);
+    if(S.z===2) lines.push(`${S.formula} は2価の酸だが、[H⁺] は「電離して出てきた H⁺」の濃度なので、2価の分はすでに含まれている。ここで2倍しない。`);
+    lines.push(`H⁺ の物質量 ＝ 1.0×10${sup(-sp.pH)} mol/L × ${sp.V.toFixed(1)}/1000 L ＝ ${sci(a.n)} mol`);
+  }else{
+    lines.push(`${S.name.replace(/水溶液$|水$/,"")} ${S.formula} は ${S.z}価の${S.strong?"強":"弱"}${kindJ}。`);
+    lines.push(`${ion} の物質量${S.strong?"":"（中和で反応できる量）"} ＝ ${S.z} × ${sig2(sp.C)} mol/L × ${sp.V.toFixed(1)}/1000 L ＝ ${sci(a.n)} mol`);
+    if(!S.strong) lines.push(`弱${kindJ}は一部しか電離していないが、中和が進むと残りも次々に電離して反応する。だから中和に必要な量は、強${kindJ}と同じく「価数 × 物質量」で決まる。`);
+  }
+  lines.push(`${ion2} を出す ${st.label}（1価）で中和する。必要な体積 ＝ ${sci(a.n)} mol ÷ ${sig2(st.C)} mol/L ＝ ${sci(a.v/1000)} L ＝ ${a.v.toFixed(2)} mL`);
+  return lines;}
+/* 中和点（ちょうど中和したとき）の pH */
+function dojoEqPH(sp){const a=dojoAnswer(sp); if(!a)return 7; const b=makeBeaker(sp); pourInto(b,a.std,a.v); return beakerPH(b);}
+/* BTB の色（黄 6.0 → 緑 6.8 → 青 7.6） */
+function btbRGBA(pH){const Y=[236,200,40],G=[60,180,90],Bl=[40,100,220];
+  const lerp=(a,b,t)=>a.map((x,i)=>Math.round(x+(b[i]-x)*t));
+  const c=pH<=6.8?lerp(Y,G,clamp01((pH-6.0)/0.8)):lerp(G,Bl,clamp01((pH-6.8)/0.8));
+  return `rgba(${c[0]},${c[1]},${c[2]},0.8)`;}
+function liqOf(pH){return pH<6.5?"acid":(pH>7.5?"base":"neutral");}
+/* 練習問題（段2〜4）。rnd は 0〜1 の乱数関数 */
+function dojoPractice(no,rnd){const pk=a=>a[Math.floor(rnd()*a.length)];
+  const ok=sp=>{const a=dojoAnswer(sp);return a&&a.v<=BURET_MAX&&Math.abs(a.v*20-Math.round(a.v*20))<1e-6&&a.v>=1;};
+  const one=gen=>{for(let i=0;i<200;i++){const sp=gen();if(ok(sp))return sp;}return null;};
+  let list=[];
+  if(no===2) for(let i=0;i<3;i++) list.push(one(()=>{const sub=pk(["HCl","H2SO4","NaOH","BaOH2"]);
+    return {sub,C:pk(sub==="BaOH2"?[0.020,0.050,0.10]:[0.050,0.10,0.20]),V:pk([5.0,10.0,15.0,20.0,25.0])};}));
+  if(no===3){const C=pk([0.050,0.10,0.20]),V=pk([5.0,10.0,15.0,20.0]);
+    list=[{sub:"HCl",C,V},{sub:"CH3COOH",C,V},{sub:pk(["NH3","NaOH"]),C,V}].map(sp=>ok(sp)?sp:one(()=>({sub:sp.sub,C:0.10,V:10.0})));}
+  if(no===4) for(let i=0;i<3;i++) list.push(i<2? one(()=>{const pH=pk([1,2]);return {sub:pk(["HCl","H2SO4"]),pH,V:pH===1?pk([5.0,10.0,15.0,20.0,25.0]):pk([50.0,100.0,150.0,200.0])};})
+    : one(()=>{const pH=pk([12,13]);return {sub:"NaOH",pH:null,pOHHint:14-pH,phShown:pH,C:Math.pow(10,pH-14),V:pH===13?pk([5.0,10.0,20.0]):pk([50.0,100.0,200.0])};}));
+  return list.filter(Boolean);}
 </script>
 <script id="artScript">
 /* =========================================================
@@ -671,7 +1205,7 @@ function pattern(p,seed,cx,cy){
   return `<path d="M${cx} ${cy+2} l3 5 l-6 0 z" fill="${p.c}" opacity=".6"/>`;
 }
 /* オーラ（ティア3） */
-function aura(p,tier){ if(tier<3)return ""; return `<circle cx="20" cy="20" r="18" fill="${p.a}" opacity="0.10"/><circle cx="20" cy="20" r="18" fill="none" stroke="${p.b}" stroke-width="0.6" opacity="0.4" stroke-dasharray="2 3"/>`; }
+function aura(p,tier){ if(tier<3)return ""; return `<circle cx="20" cy="20" r="18.2" fill="none" stroke="${p.b}" stroke-width="1" stroke-dasharray="1.5 3.5" stroke-linecap="round"/>`; }
 
 /* === シェイプ別 === */
 function shBlob(p,seed,tier){const wob=sPick(seed,5,3);
@@ -739,9 +1273,9 @@ function monSVG(spKey){
     ${draw(p,seed,look.tier||1)}</svg>`;
 }
 /* トレーナー用アバター */
-function trainerSVG(color){return `<svg viewBox="0 0 40 46" xmlns="http://www.w3.org/2000/svg">
-  <defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16263f"/><stop offset="1" stop-color="#0a1420"/></linearGradient></defs>
-  <rect width="40" height="46" fill="url(#tg)"/><circle cx="20" cy="16" r="9" fill="#e7c8a4"/>
+function trainerSVG(color,noBg){return `<svg viewBox="0 0 40 46" xmlns="http://www.w3.org/2000/svg">
+  ${noBg?"":`<defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6d6"/><stop offset="1" stop-color="#ffe08a"/></linearGradient></defs>
+  <rect width="40" height="46" fill="url(#tg)"/>`}<circle cx="20" cy="16" r="9" fill="#e7c8a4"/>
   <path d="M10 15 Q10 5 20 5 Q30 5 30 15 L28 13 Q20 9 12 13 Z" fill="${color}"/>
   <circle cx="16" cy="16" r="1.5" fill="#26304a"/><circle cx="24" cy="16" r="1.5" fill="#26304a"/>
   <path d="M17 20 q3 2 6 0" stroke="#b07a52" stroke-width="1.2" fill="none"/>
@@ -749,15 +1283,15 @@ function trainerSVG(color){return `<svg viewBox="0 0 40 46" xmlns="http://www.w3
 /* 主人公 */
 function heroSVG(){return `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
   <ellipse cx="16" cy="29" rx="8" ry="2.2" fill="rgba(0,0,0,.35)"/>
-  <rect x="11" y="4" width="10" height="8" rx="3" fill="#e7c8a4"/><rect x="10" y="3" width="12" height="3.6" rx="2" fill="#34406a"/>
+  <rect x="11" y="4" width="10" height="8" rx="3" fill="#ffd9b8"/><rect x="10" y="3" width="12" height="3.6" rx="2" fill="#ff4f8b"/>
   <rect x="12.5" y="7" width="2" height="1.5" fill="#26304a"/><rect x="17.5" y="7" width="2" height="1.5" fill="#26304a"/>
   <rect x="9" y="12" width="14" height="12" rx="4" fill="#2f9f8f"/><rect x="14" y="12" width="4" height="12" fill="rgba(255,255,255,.18)"/>
   <rect x="11" y="24" width="3.4" height="6" rx="1.4" fill="#26304a"/><rect x="17.6" y="24" width="3.4" height="6" rx="1.4" fill="#26304a"/>
   <circle cx="24" cy="15" r="3" fill="#f0b73a"/><rect x="23" y="15" width="2" height="7" fill="#9fb0c8"/></svg>`;}
 function heroPortrait(){return `<svg viewBox="0 0 38 46" xmlns="http://www.w3.org/2000/svg">
-  <defs><linearGradient id="hp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#16263f"/><stop offset="1" stop-color="#0a1420"/></linearGradient></defs>
+  <defs><linearGradient id="hp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff6d6"/><stop offset="1" stop-color="#ffe08a"/></linearGradient></defs>
   <rect width="38" height="46" fill="url(#hp)"/><circle cx="19" cy="15" r="9" fill="#e7c8a4"/>
-  <rect x="9" y="5" width="20" height="7" rx="3" fill="#34406a"/><rect x="14" y="13" width="3" height="2" fill="#26304a"/><rect x="21" y="13" width="3" height="2" fill="#26304a"/>
+  <rect x="9" y="5" width="20" height="7" rx="3" fill="#ff4f8b"/><rect x="14" y="13" width="3" height="2" fill="#26304a"/><rect x="21" y="13" width="3" height="2" fill="#26304a"/>
   <rect x="7" y="25" width="24" height="21" rx="5" fill="#2f9f8f"/><rect x="15" y="25" width="8" height="21" fill="rgba(255,255,255,.14)"/></svg>`;}
 
 </script>
@@ -770,6 +1304,22 @@ function heroPortrait(){return `<svg viewBox="0 0 38 46" xmlns="http://www.w3.or
 function $id(i){return document.getElementById(i);}
 function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[a[i],a[j]]=[a[j],a[i]];}return a;}
 function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+/* ===== 外部データの安全化（XSS・不正データ対策） ===== */
+function escapeHtml(v){return String(v==null?"":v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function safeColor(c,def){return (typeof c==="string"&&/^#[0-9a-fA-F]{6}$/.test(c))?c:(def||"#4fd8c8");}
+function safeInt(v,min,max,def){v=Math.round(Number(v));return isFinite(v)?clamp(v,min,max):def;}
+function safeName(v){return String(v==null?"":v).slice(0,8);}
+function sanitizeTeam(team){return (Array.isArray(team)?team:[]).filter(m=>m&&typeof m.sp==="string"&&Object.prototype.hasOwnProperty.call(SPECIES,m.sp))
+  .slice(0,6).map(m=>{const o={sp:m.sp,lv:safeInt(m.lv,1,100,5)}; if(isSaltSp(m.sp))o.salt=validSalt(m.salt)?m.salt:DEFAULT_SALT; return o;});}
+function sanitizeEntry(x){ if(!x||typeof x!=="object")return null;
+  return {id:String(x.id||"").slice(0,40),name:safeName(x.name),color:safeColor(x.color),player:!!x.player,cpu:!!x.cpu,
+    team:sanitizeTeam(x.team),wins:safeInt(x.wins,0,1e6,0),losses:safeInt(x.losses,0,1e6,0),badges:safeInt(x.badges,0,99,0),registeredAt:Number(x.registeredAt)||0}; }
+function sanitizeMon(m){ if(!m||!Object.prototype.hasOwnProperty.call(SPECIES,m.sp))return null;
+  const lv=safeInt(m.lv,1,100,5); const base=makeMon(m.sp,lv);
+  const moves=(Array.isArray(m.moves)?m.moves:[]).filter(k=>Object.prototype.hasOwnProperty.call(MOVES,k)).slice(0,4);
+  base.moves=moves.length?moves:base.moves; base.exp=safeInt(m.exp,0,1e7,0); base.hp=safeInt(m.hp,0,base.maxhp,base.maxhp);
+  if(isSaltSp(m.sp)) base.salt=validSalt(m.salt)?m.salt:DEFAULT_SALT; else delete base.salt;
+  return base; }
 
 /* =========================================================
    保存・非同期対戦のDBレイヤー
@@ -807,7 +1357,7 @@ function fetchCloudSave(name,cb){ if(!FB){cb&&cb(null);return;}
   FB.collection("saves").doc(name).get().then(d=>cb&&cb(d.exists?d.data():null)).catch(()=>cb&&cb(null)); }
 function myTeamEntry(){
   return { id:"P_"+(state.name||"trainer"), name:state.name||"トレーナー", color:"#4fd8c8", player:true,
-    team:(state.party||[]).map(m=>({sp:m.sp,lv:m.lv})),
+    team:(state.party||[]).map(m=>m.salt?{sp:m.sp,lv:m.lv,salt:m.salt}:{sp:m.sp,lv:m.lv}),
     wins:state.wins||0, losses:state.losses||0, badges:(state.badges||[]).length, registeredAt:Date.now() };
 }
 function saveMyTeam(silent){
@@ -816,14 +1366,14 @@ function saveMyTeam(silent){
     const i=all.findIndex(e=>e.id===entry.id); if(i>=0)all[i]=entry; else all.push(entry);
     localStorage.setItem(TEAM_KEY,JSON.stringify(all)); }catch(e){}
   if(FB&&state.name){ FB.collection("teams").doc(state.name).set(entry).catch(()=>{}); }
-  if(!silent)toast("📋 編成『"+entry.name+"』を登録しました！");
+  if(!silent)toast("📋 編成『"+escapeHtml(entry.name)+"』を登録しました！");
   return true;
 }
 let OPP_CACHE=null;
 function loadOpponents(){
   let players=[]; try{players=JSON.parse(localStorage.getItem(TEAM_KEY)||"[]");}catch(e){}
-  players=players.filter(p=>p.team&&p.team.length);
-  if(FB){ FB.collection("teams").get().then(snap=>{ const arr=[];snap.forEach(d=>{const x=d.data();if(x.team&&x.team.length)arr.push(x);});
+  players=(Array.isArray(players)?players:[]).map(sanitizeEntry).filter(p=>p&&p.team.length);
+  if(FB){ FB.collection("teams").get().then(snap=>{ const arr=[];snap.forEach(d=>{const x=sanitizeEntry(d.data());if(x&&x.team.length)arr.push(x);});
     try{localStorage.setItem(TEAM_KEY,JSON.stringify(arr));}catch(e){} OPP_CACHE=arr; }).catch(()=>{}); }
   const base = OPP_CACHE || players;
   return {cpu:TRAINERS, players:base.filter(p=>p.team&&p.team.length)};
@@ -843,11 +1393,11 @@ function loadRanking(cb){
     let players=[]; try{players=JSON.parse(localStorage.getItem(TEAM_KEY)||"[]");}catch(e){}
     let cpurec={}; try{cpurec=JSON.parse(localStorage.getItem("acidmon_cpurec")||"{}");}catch(e){}
     const cpu=TRAINERS.map(t=>({name:t.name,color:t.color,cpu:true,wins:(cpurec[t.id]||{}).wins||0,losses:(cpurec[t.id]||{}).losses||0}));
-    const pl=players.filter(p=>p.player).map(p=>({name:p.name,color:p.color||"#4fd8c8",player:true,wins:p.wins||0,losses:p.losses||0,badges:p.badges||0}));
+    const pl=(Array.isArray(players)?players:[]).map(sanitizeEntry).filter(p=>p&&p.player).map(p=>({name:p.name,color:p.color||"#4fd8c8",player:true,wins:p.wins||0,losses:p.losses||0,badges:p.badges||0}));
     return [...pl,...cpu].sort((a,b)=>(b.wins-a.wins)||(a.losses-b.losses));
   }
   if(FB){ FB.collection("teams").orderBy("wins","desc").limit(50).get().then(snap=>{
-    const arr=[];snap.forEach(d=>arr.push(d.data()));
+    const arr=[];snap.forEach(d=>{const x=sanitizeEntry(d.data());if(x)arr.push(x);});
     if(arr.length)cb(arr.map(e=>({name:e.name,color:e.color||"#4fd8c8",player:!e.cpu,cpu:!!e.cpu,wins:e.wins||0,losses:e.losses||0,badges:e.badges||0})));
     else cb(localRank());
   }).catch(()=>cb(localRank())); }
@@ -864,13 +1414,14 @@ function freshState(name){return{
 /* ===== モンスター個体生成 ===== */
 function statAt(bs,lv){return Math.floor(bs*lv/50)+5;}
 function hpAt(bs,lv){return Math.floor(bs*lv/50)+lv+10;}
-function makeMon(spKey,lv){
+function makeMon(spKey,lv,salt){
   const sp=SPECIES[spKey];
   const moves=[]; sp.learnset.forEach(l=>{if(l.lv<=lv&&!moves.includes(l.move))moves.push(l.move);});
   while(moves.length>4)moves.shift();
   const mon={sp:spKey,lv,exp:0,moves,
     maxhp:hpAt(sp.base.hp,lv),hp:hpAt(sp.base.hp,lv),
     atk:statAt(sp.base.atk,lv),spd:statAt(sp.base.spd,lv)};
+  if(sp.type==="neutral") mon.salt=validSalt(salt)?salt:pick(Object.keys(SALTS));
   return mon;
 }
 function expToNext(lv){return Math.round(lv*lv*5+lv*10+15);}
@@ -895,15 +1446,15 @@ function buildAreas(){
    {name:"滴定の神殿", kind:"wild", wild:"area3", lvRange:[16,24],
     map:["##############","#.<..........#","#..GG...GG...#","#.G...TT..G..#","#.....TT.....#","#..GG.....GG.#","#..........H.#","#....GG......#","#.G.......G..#","#......>.....#","##############"]},
    {name:"対戦アリーナ", kind:"arena",
-    map:["##############","#.R...Z....K.#","#..A.A.A.A.A.#","#............#","#.....VV.....#","#............#","#....<..S....#","#............#","##############"]},
+    map:["##############","#.R...Z....K.#","#..A.A.A.A.A.#","#............#","#.....VV.....#","#............#","#....<..S..D.#","#............#","##############"]},
   ];
 }
 const POS={};
 function resolvePositions(){
-  for(let ai=0;ai<AREAS.length;ai++){const A=AREAS[ai],map=A.map;let next=null,prev=null,heal=null,shop=null,reg=null,rank=null,versus=null,admin=null;const arenas=[];
+  for(let ai=0;ai<AREAS.length;ai++){const A=AREAS[ai],map=A.map;let next=null,prev=null,heal=null,shop=null,reg=null,rank=null,versus=null,admin=null,dojo=null;const arenas=[];
     for(let y=0;y<map.length;y++)for(let x=0;x<map[0].length;x++){const c=map[y][x];
-      if(c===">")next={x,y}; if(c==="<")prev={x,y}; if(c==="H")heal={x,y}; if(c==="S")shop={x,y}; if(c==="A")arenas.push({x,y}); if(c==="R")reg={x,y}; if(c==="K")rank={x,y}; if(c==="V"&&(x===0||map[y][x-1]!=="V"))versus={x,y}; if(c==="Z")admin={x,y};}
-    POS[ai]={next,prev,heal,shop,arenas,reg,rank,versus,admin};}
+      if(c===">")next={x,y}; if(c==="<")prev={x,y}; if(c==="H")heal={x,y}; if(c==="S")shop={x,y}; if(c==="A")arenas.push({x,y}); if(c==="R")reg={x,y}; if(c==="K")rank={x,y}; if(c==="V"&&(x===0||map[y][x-1]!=="V"))versus={x,y}; if(c==="Z")admin={x,y}; if(c==="D")dojo={x,y};}
+    POS[ai]={next,prev,heal,shop,arenas,reg,rank,versus,admin,dojo};}
 }
 function startTile(ai){const A=AREAS[ai],map=A.map;
   // プレイヤー初期位置: 入口(prev)か中央付近の空き
@@ -918,27 +1469,41 @@ const ctx=canvas.getContext("2d");
 let MAP,COLS,ROWS;
 function walkable(x,y){if(x<0||y<0||x>=COLS||y>=ROWS)return false;return MAP[y][x]!=="#"&&MAP[y][x]!=="T";}
 function isGrass(x,y){return MAP[y]&&MAP[y][x]==="G";}
+/* エリアごとの配色（ポップ）。index は state.area */
+const TILESET=[
+  {fa:"#bdf0a0",fb:"#b0e892",wall:"#5fb04e",wallTop:"#8bd66c",grass:"#2f9e44",tree:"#43b85a",treeTop:"#7ddc6e",out:"#7fcf62"}, // 酸の草原
+  {fa:"#a9e3b2",fb:"#9cdba6",wall:"#2f8a55",wallTop:"#4faa6e",grass:"#1c7f45",tree:"#2f9a58",treeTop:"#5cc479",out:"#3f9a62"}, // 中和の森
+  {fa:"#ece4ff",fb:"#e1d6fd",wall:"#8b79da",wallTop:"#b1a3f3",grass:"#7a55d8",tree:"#9b7cf0",treeTop:"#c9b8ff",out:"#a493e6"}, // 滴定の神殿
+  {fa:"#ffe6f0",fb:"#ffd8e7",wall:"#ff7aa8",wallTop:"#ffa9c7",grass:"#e0457f",tree:"#ff8fb6",treeTop:"#ffc3d8",out:"#ff9fc0"}, // 対戦アリーナ
+];
+const INK="#2a2350";
+function TS(){return TILESET[state.area]||TILESET[0];}
+function rr(X,Y,w,h,r){ctx.beginPath();ctx.moveTo(X+r,Y);ctx.arcTo(X+w,Y,X+w,Y+h,r);ctx.arcTo(X+w,Y+h,X,Y+h,r);ctx.arcTo(X,Y+h,X,Y,r);ctx.arcTo(X,Y,X+w,Y,r);ctx.closePath();}
+function pad(X,Y,fill,emoji,size){rr(X+3,Y+3,TILE-6,TILE-6,7);ctx.fillStyle=fill;ctx.fill();ctx.lineWidth=2;ctx.strokeStyle=INK;ctx.stroke();
+  if(emoji){ctx.fillStyle=INK;ctx.font="bold "+(size||15)+"px sans-serif";ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(emoji,X+TILE/2,Y+TILE/2+1);}}
 function drawTile(t,X,Y,x,y){
-  const A=AREAS[state.area];
-  let base = A.kind==="arena" ? "#120a22" : "#0a1420";
-  ctx.fillStyle=((x+y)%2)?base:(A.kind==="arena"?"#160d28":"#0c1626");ctx.fillRect(X,Y,TILE,TILE);
-  ctx.strokeStyle="rgba(79,216,200,.05)";ctx.strokeRect(X+0.5,Y+0.5,TILE-1,TILE-1);
-  if(t==="#"){ctx.fillStyle="#14203c";ctx.fillRect(X,Y,TILE,TILE);ctx.fillStyle="#1c2a4a";ctx.fillRect(X+2,Y+2,TILE-4,TILE-4);ctx.fillStyle="rgba(79,216,200,.12)";ctx.fillRect(X+2,Y+2,TILE-4,2);}
-  else if(t==="G"){ctx.fillStyle="rgba(127,224,160,.16)";ctx.fillRect(X,Y,TILE,TILE);
-    ctx.strokeStyle="rgba(127,224,160,.5)";ctx.lineWidth=1.5;for(let i=0;i<3;i++){ctx.beginPath();ctx.moveTo(X+8+i*8,Y+26);ctx.lineTo(X+8+i*8,Y+18);ctx.stroke();}ctx.lineWidth=1;}
-  else if(t==="T"){ctx.fillStyle="#0e3a2a";ctx.fillRect(X+4,Y+6,TILE-8,TILE-8);ctx.fillStyle="#145a3a";ctx.beginPath();ctx.arc(X+TILE/2,Y+14,9,0,7);ctx.fill();ctx.fillStyle="#1c7a4a";ctx.beginPath();ctx.arc(X+TILE/2,Y+12,6,0,7);ctx.fill();}
-  else if(t===">"||t==="<"){ctx.fillStyle="rgba(240,183,58,.3)";ctx.fillRect(X+4,Y+4,TILE-8,TILE-8);ctx.strokeStyle="#f0b73a";ctx.lineWidth=2;ctx.strokeRect(X+4,Y+4,TILE-8,TILE-8);ctx.lineWidth=1;ctx.fillStyle="#f0b73a";ctx.font="14px sans-serif";ctx.textAlign="center";ctx.fillText(t===">"?"▶":"◀",X+TILE/2,Y+TILE/2+5);}
-  else if(t==="H"){ctx.fillStyle="rgba(127,224,160,.25)";ctx.fillRect(X+3,Y+3,TILE-6,TILE-6);ctx.strokeStyle="#7fe0a0";ctx.lineWidth=2;ctx.strokeRect(X+3,Y+3,TILE-6,TILE-6);ctx.lineWidth=1;ctx.fillStyle="#7fe0a0";ctx.font="13px sans-serif";ctx.textAlign="center";ctx.fillText("✚",X+TILE/2,Y+TILE/2+4);}
-  else if(t==="S"){ctx.fillStyle="rgba(240,183,58,.22)";ctx.fillRect(X+3,Y+3,TILE-6,TILE-6);ctx.strokeStyle="#f0b73a";ctx.lineWidth=2;ctx.strokeRect(X+3,Y+3,TILE-6,TILE-6);ctx.lineWidth=1;ctx.fillStyle="#f0b73a";ctx.font="12px sans-serif";ctx.textAlign="center";ctx.fillText("🛍",X+TILE/2,Y+TILE/2+4);}
-  else if(t==="A"){const g=ctx.createRadialGradient(X+TILE/2,Y+TILE/2,2,X+TILE/2,Y+TILE/2,TILE/2);g.addColorStop(0,"rgba(154,124,240,.5)");g.addColorStop(1,"rgba(154,124,240,0)");ctx.fillStyle=g;ctx.fillRect(X,Y,TILE,TILE);ctx.strokeStyle="#9a7cf0";ctx.lineWidth=1.5;ctx.strokeRect(X+6,Y+6,TILE-12,TILE-12);ctx.lineWidth=1;}
-  else if(t==="R"){ctx.fillStyle="rgba(79,216,200,.22)";ctx.fillRect(X+3,Y+3,TILE-6,TILE-6);ctx.strokeStyle="#4fd8c8";ctx.lineWidth=2;ctx.strokeRect(X+3,Y+3,TILE-6,TILE-6);ctx.lineWidth=1;ctx.fillStyle="#4fd8c8";ctx.font="12px sans-serif";ctx.textAlign="center";ctx.fillText("📋",X+TILE/2,Y+TILE/2+4);}
-  else if(t==="K"){ctx.fillStyle="rgba(240,198,74,.22)";ctx.fillRect(X+3,Y+3,TILE-6,TILE-6);ctx.strokeStyle="#f0c64a";ctx.lineWidth=2;ctx.strokeRect(X+3,Y+3,TILE-6,TILE-6);ctx.lineWidth=1;ctx.fillStyle="#f0c64a";ctx.font="12px sans-serif";ctx.textAlign="center";ctx.fillText("🏆",X+TILE/2,Y+TILE/2+4);}
-  else if(t==="V"){ctx.fillStyle="rgba(240,106,154,.22)";ctx.fillRect(X,Y+3,TILE,TILE-6);ctx.strokeStyle="#f06a9a";ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(X,Y+5);ctx.lineTo(X+TILE,Y+5);ctx.moveTo(X,Y+TILE-5);ctx.lineTo(X+TILE,Y+TILE-5);ctx.stroke();ctx.lineWidth=1;ctx.fillStyle="#f06a9a";ctx.font="13px sans-serif";ctx.textAlign="center";ctx.fillText("⚔",X+TILE/2,Y+TILE/2+4);}
+  const P=TS();
+  ctx.fillStyle=((x+y)%2)?P.fa:P.fb;ctx.fillRect(X,Y,TILE,TILE);
+  if(t==="#"){rr(X+1,Y+1,TILE-2,TILE-2,6);ctx.fillStyle=P.wall;ctx.fill();ctx.lineWidth=2;ctx.strokeStyle=INK;ctx.stroke();
+    rr(X+4,Y+4,TILE-8,(TILE-8)/2,4);ctx.fillStyle=P.wallTop;ctx.fill();}
+  else if(t==="G"){ctx.fillStyle=P.grass+"33";rr(X+1,Y+1,TILE-2,TILE-2,8);ctx.fill();
+    ctx.lineJoin="round";ctx.lineWidth=1.5;ctx.strokeStyle=INK;ctx.fillStyle=P.grass;
+    [[9,27],[17,22],[25,28]].forEach(([gx,gy])=>{ctx.beginPath();ctx.moveTo(X+gx-6,Y+gy);ctx.lineTo(X+gx-3,Y+gy-10);ctx.lineTo(X+gx,Y+gy-4);ctx.lineTo(X+gx+3,Y+gy-12);ctx.lineTo(X+gx+6,Y+gy);ctx.closePath();ctx.fill();ctx.stroke();});}
+  else if(t==="T"){ctx.lineWidth=2;ctx.strokeStyle=INK;rr(X+14,Y+20,6,11,2);ctx.fillStyle="#a0703c";ctx.fill();ctx.stroke();
+    ctx.beginPath();ctx.arc(X+TILE/2,Y+14,11,0,Math.PI*2);ctx.fillStyle=P.tree;ctx.fill();ctx.stroke();
+    ctx.beginPath();ctx.arc(X+TILE/2-3,Y+10,4.5,0,Math.PI*2);ctx.fillStyle=P.treeTop;ctx.fill();}
+  else if(t===">"||t==="<")pad(X,Y,"#ffd23f",t===">"?"▶":"◀",14);
+  else if(t==="H"){pad(X,Y,"#ffffff");ctx.fillStyle="#ff5c8a";ctx.fillRect(X+TILE/2-3,Y+9,6,TILE-18);ctx.fillRect(X+9,Y+TILE/2-3,TILE-18,6);}
+  else if(t==="S")pad(X,Y,"#ffb347","🛍",14);
+  else if(t==="A"){ctx.beginPath();ctx.arc(X+TILE/2,Y+TILE/2+6,12,0,Math.PI*2);ctx.fillStyle="#b9a6ff";ctx.fill();ctx.lineWidth=2;ctx.strokeStyle=INK;ctx.stroke();}
+  else if(t==="R")pad(X,Y,"#8fe3ef");
+  else if(t==="K")pad(X,Y,"#ffe27a");
+  else if(t==="D")pad(X,Y,"#8ef0b8");
+  else if(t==="V"){ctx.fillStyle="#ffb3cf";ctx.fillRect(X,Y+4,TILE,TILE-8);ctx.lineWidth=2;ctx.strokeStyle=INK;ctx.beginPath();ctx.moveTo(X,Y+4);ctx.lineTo(X+TILE,Y+4);ctx.moveTo(X,Y+TILE-4);ctx.lineTo(X+TILE,Y+TILE-4);ctx.stroke();}
   else if(t==="Z"){ const on=(typeof adminUnlocked==="function")&&adminUnlocked();
-    if(on){const g=ctx.createRadialGradient(X+TILE/2,Y+TILE/2,2,X+TILE/2,Y+TILE/2,TILE/2);g.addColorStop(0,"rgba(240,86,110,.6)");g.addColorStop(1,"rgba(240,86,110,0)");ctx.fillStyle=g;ctx.fillRect(X,Y,TILE,TILE);ctx.strokeStyle="#f0566e";ctx.lineWidth=2;ctx.strokeRect(X+4,Y+4,TILE-8,TILE-8);ctx.lineWidth=1;ctx.fillStyle="#fff";ctx.font="12px sans-serif";ctx.textAlign="center";ctx.fillText("⚡",X+TILE/2,Y+TILE/2+4);}
-    else{ctx.fillStyle="#1a1420";ctx.fillRect(X+4,Y+4,TILE-8,TILE-8);ctx.strokeStyle="#3a2535";ctx.lineWidth=2;ctx.strokeRect(X+4,Y+4,TILE-8,TILE-8);ctx.lineWidth=1;ctx.fillStyle="#5a3545";ctx.font="11px sans-serif";ctx.textAlign="center";ctx.fillText("🔒",X+TILE/2,Y+TILE/2+4);} }
+    pad(X,Y,on?"#ff4d6d":"#cfc8e6",on?"⚡":"🔒",13); }
 }
-function drawMap(){ctx.clearRect(0,0,canvas.width,canvas.height);for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++)drawTile(MAP[y][x],x*TILE,y*TILE,x,y);}
+function drawMap(){ctx.setTransform(MAPRES,0,0,MAPRES,0,0);ctx.clearRect(0,0,COLS*TILE,ROWS*TILE);for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++)drawTile(MAP[y][x],x*TILE,y*TILE,x,y);}
 
 /* ===== スプライト ===== */
 const sprites={};
@@ -950,32 +1515,49 @@ function buildSprites(){clearSprites();const A=AREAS[state.area],rec=POS[state.a
   if(A.kind==="arena"){const opp=loadOpponents();
     // トレーナー枠はCPU専用(バッジ・エンディング用)。順番に並べる。
     rec.arenas.forEach((a,i)=>{const t=opp.cpu[i];if(t){const beaten=state.beaten.includes(t.id);
-      makeSprite("arena_"+i,trainerSVG(t.color||"#9a7cf0"),(beaten?"✓ ":"")+t.name,"trainer");place("arena_"+i,a.x,a.y);}});
+      makeSprite("arena_"+i,trainerSVG(t.color||"#9a7cf0",true),(beaten?"✓ ":"")+t.name.split(" ").pop(),"trainer lblLow");place("arena_"+i,a.x,a.y);}});
     if(rec.versus){makeSprite("versus",signSVG("#f06a9a","⚔"),"自由対戦","obj");place("versus",rec.versus.x,rec.versus.y);}
     if(rec.admin&&adminUnlocked()){const beaten=state.beaten.includes(ADMIN_TRAINER.id);
-      makeSprite("admin",trainerSVG(ADMIN_TRAINER.color),(beaten?"✓ ":"⚡ ")+ADMIN_TRAINER.name,"trainer");place("admin",rec.admin.x,rec.admin.y);}
+      makeSprite("admin",trainerSVG(ADMIN_TRAINER.color,true),(beaten?"✓ ":"⚡ ")+ADMIN_TRAINER.name,"trainer lblLow");place("admin",rec.admin.x,rec.admin.y);}
     if(rec.shop){makeSprite("shop",shopSVG(),"補給ショップ","obj");place("shop",rec.shop.x,rec.shop.y);}
     if(rec.reg){makeSprite("reg",signSVG("#4fd8c8","📋"),"編成登録","obj");place("reg",rec.reg.x,rec.reg.y);}
     if(rec.rank){makeSprite("rank",signSVG("#f0c64a","🏆"),"ランキング","obj");place("rank",rec.rank.x,rec.rank.y);}
+    if(rec.dojo){makeSprite("dojo",signSVG("#1fb866","🥋"),"中和道場","obj lblLow");place("dojo",rec.dojo.x,rec.dojo.y);}
   }
   makeSprite("player",heroSVG(),null);place("player",state.px,state.py);}
-function signSVG(color,emoji){return `<svg viewBox="0 0 32 32"><rect x="7" y="6" width="18" height="14" rx="2" fill="#16263f" stroke="${color}" stroke-width="1.5"/><rect x="15" y="20" width="2" height="8" fill="#2a3450"/><text x="16" y="16" font-size="9" text-anchor="middle">${emoji}</text></svg>`;}
-function shopSVG(){return `<svg viewBox="0 0 32 32"><rect x="6" y="12" width="20" height="16" rx="2" fill="#2a3450"/><rect x="6" y="8" width="20" height="5" fill="#f0b73a"/><rect x="9" y="16" width="5" height="8" fill="#4fd8c8"/><rect x="18" y="16" width="5" height="8" fill="#4fd8c8"/></svg>`;}
+function signSVG(color,emoji){return `<svg viewBox="0 0 32 32"><rect x="14.5" y="18" width="3" height="11" rx="1" fill="#a0703c"/><rect x="5" y="5" width="22" height="15" rx="4" fill="#fff" stroke="${color}" stroke-width="2.5"/><text x="16" y="16.5" font-size="10" text-anchor="middle">${emoji}</text></svg>`;}
+function shopSVG(){return `<svg viewBox="0 0 32 32"><rect x="6" y="12" width="20" height="16" rx="2" fill="#fff4d6"/><path d="M4 13 l3 -6 h18 l3 6 z" fill="#ff7aa8"/><path d="M10 7 v6 M16 7 v6 M22 7 v6" stroke="#fff" stroke-width="2"/><rect x="9" y="17" width="6" height="11" rx="1" fill="#5cc8ff"/><rect x="18" y="17" width="5" height="5" rx="1" fill="#5cc8ff"/></svg>`;}
 
 /* ===== カメラ・ミニマップ ===== */
-const VW=520,VH=340;
-function camera(){let cx=state.px*TILE+TILE/2-VW/2,cy=state.py*TILE+TILE/2-VH/2;
-  cx=clamp(cx,0,Math.max(0,COLS*TILE-VW));cy=clamp(cy,0,Math.max(0,ROWS*TILE-VH));world.style.transform=`translate(${-cx}px,${-cy}px)`;}
+/* 表示倍率 ZOOM: マップ全体がステージに収まる倍率（1〜2.4倍）。
+   収まらない小さい画面は等倍でスクロール。canvas は倍率×DPR の解像度で描いて拡大してもぼやけないようにする */
+let ZOOM=1,MAPRES=1;const CAM={x:0,y:0};
+function viewSize(){const v=$id("viewport");return {w:v.clientWidth,h:v.clientHeight};}
+function updateZoom(){const {w,h}=viewSize();if(!w||!h||!COLS)return false;
+  ZOOM=clamp(Math.min(w/(COLS*TILE),h/(ROWS*TILE)),1,2.4);
+  const res=Math.min(3,Math.ceil(ZOOM*(window.devicePixelRatio||1)*2)/2);
+  if(res!==MAPRES){MAPRES=res;return true;}return false;}
+function sizeCanvas(){canvas.width=Math.round(COLS*TILE*MAPRES);canvas.height=Math.round(ROWS*TILE*MAPRES);canvas.style.width=COLS*TILE+"px";canvas.style.height=ROWS*TILE+"px";}
+function camera(){const {w,h}=viewSize();if(!w||!h)return;const z=ZOOM,mw=COLS*TILE*z,mh=ROWS*TILE*z;
+  let cx=(state.px*TILE+TILE/2)*z-w/2,cy=(state.py*TILE+TILE/2)*z-h/2;
+  cx=mw<=w?-(w-mw)/2:clamp(cx,0,mw-w);cy=mh<=h?-(h-mh)/2:clamp(cy,0,mh-h);
+  CAM.x=cx;CAM.y=cy;world.style.transform=`translate(${-cx}px,${-cy}px) scale(${z})`;}
+/* 画面サイズが変わったとき（回転・リサイズ・バトル終了後）にマップを合わせ直す */
+function relayout(){if(!MAP||$id("viewport").style.display==="none")return;if(updateZoom()){sizeCanvas();drawMap();}camera();}
+function snapWorld(){world.classList.add("snap");requestAnimationFrame(()=>requestAnimationFrame(()=>world.classList.remove("snap")));}
+window.addEventListener("resize",()=>requestAnimationFrame(relayout));
 const mm=$id("minimap"),mmx=mm.getContext("2d");
-function drawMinimap(){const sx=mm.width/COLS,sy=mm.height/ROWS;mmx.clearRect(0,0,mm.width,mm.height);
-  for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){const t=MAP[y][x];let c="#0c1626";
-    if(t==="#")c="#14203c";else if(t==="G")c="#2e6a44";else if(t==="T")c="#145a3a";else if(t===">"||t==="<")c="#f0b73a";else if(t==="H")c="#7fe0a0";else if(t==="A")c="#9a7cf0";else if(t==="S")c="#f0b73a";else if(t==="R")c="#4fd8c8";else if(t==="K")c="#f0c64a";else if(t==="V")c="#f06a9a";else if(t==="Z")c=(typeof adminUnlocked==="function"&&adminUnlocked())?"#f0566e":"#3a2535";
+function drawMinimap(){if(mm.width!==COLS*8){mm.width=COLS*8;mm.height=ROWS*8;}const sx=mm.width/COLS,sy=mm.height/ROWS;mmx.clearRect(0,0,mm.width,mm.height);let c;
+  for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++){const t=MAP[y][x];
+    const P=TS();c=P.fa;
+    if(t==="#")c=P.wall;else if(t==="G")c=P.grass;else if(t==="T")c=P.tree;else if(t===">"||t==="<")c="#ffd23f";else if(t==="H")c="#ff5c8a";else if(t==="A")c="#9a7cf0";else if(t==="S")c="#ffb347";else if(t==="R")c="#10b3c8";else if(t==="K")c="#ffc400";else if(t==="D")c="#1fb866";else if(t==="V")c="#ff7aa8";else if(t==="Z")c=(typeof adminUnlocked==="function"&&adminUnlocked())?"#ff4d6d":"#cfc8e6";
     mmx.fillStyle=c;mmx.fillRect(x*sx,y*sy,Math.ceil(sx),Math.ceil(sy));}
-  mmx.fillStyle="#fff";mmx.fillRect(state.px*sx,state.py*sy,Math.ceil(sx)+1,Math.ceil(sy)+1);}
+  mmx.fillStyle=INK;mmx.fillRect(state.px*sx-1,state.py*sy-1,Math.ceil(sx)+2,Math.ceil(sy)+2);mmx.fillStyle="#fff";mmx.fillRect(state.px*sx,state.py*sy,Math.ceil(sx),Math.ceil(sy));}
 
 /* ===== エリアロード ===== */
 function loadArea(ai){state.area=ai;const A=AREAS[ai];MAP=A.map;COLS=MAP[0].length;ROWS=MAP.length;
-  canvas.width=COLS*TILE;canvas.height=ROWS*TILE;if(!canvas.parentNode)world.appendChild(canvas);
+  if(!canvas.parentNode)world.appendChild(canvas);
+  $id("viewport").style.background=TS().out;snapWorld();updateZoom();sizeCanvas();
   drawMap();buildSprites();$id("areaName").textContent=A.name;drawMinimap();playMusic(A.kind==="arena"?"arena":"field");}
 
 /* ===== HUD ===== */
@@ -983,10 +1565,16 @@ function refresh(){$id("pname").textContent=state.name||"トレーナー";
   $id("gold").textContent=state.gold;$id("badges").textContent=state.badges.length;$id("dexn").textContent=state.dex.length;
   const lead=state.party[0];
   if(lead){$id("leadName").textContent=SPECIES[lead.sp].name+" Lv"+lead.lv;const r=lead.hp/lead.maxhp;
-    $id("leadHp").style.width=(r*100)+"%";$id("leadHp").style.background=r<0.3?"linear-gradient(90deg,#f0566e,#f06a9a)":"linear-gradient(90deg,#7fe0a0,#4fd8c8)";
+    $id("leadHp").style.width=(r*100)+"%";$id("leadHp").className="leadfill "+hpCls(r);
     $id("leadHpTxt").textContent=lead.hp+"/"+lead.maxhp;}
+  renderPartyPanel();
 }
-function log(msg){$id("log").innerHTML=msg;}
+function renderPartyPanel(){const el=$id("partyPanel");if(!el||!state)return;
+  el.innerHTML=state.party.map((m,i)=>{const r=m.hp/m.maxhp;return `<div class="pp ${m.hp>0?'':'ko'}">${monSVG(m.sp)}<div class="ppi"><div class="ppn"><span>${SPECIES[m.sp].name}</span><span class="sub">Lv${m.lv}</span></div><div class="hpline"><span class="${hpCls(r)}" style="width:${Math.max(0,r*100)}%"></span></div></div></div>`;}).join("");}
+const LOG_MAX=6;
+function log(msg){const L=$id("log");const d=document.createElement("div");d.className="lg";d.innerHTML=msg;L.prepend(d);
+  while(L.children.length>LOG_MAX)L.lastElementChild.remove();L.scrollTop=0;}
+function hpCls(r){return r<=0.2?"low":(r<=0.5?"mid":"");}
 
 /* ===== BGM/SFX ===== */
 let actx=null,mg=null,mTimer=null,curTrack=null,mi=0;
@@ -1007,6 +1595,7 @@ function sfx(k){ensureAudio();if(!actx||state.flags.bgmOff)return;
   else if(k==="level"){[392,523,659,880].forEach((f,i)=>setTimeout(()=>tone(f,0.12,"triangle",0.15),i*70));}
   else if(k==="evo"){[330,392,494,659,784].forEach((f,i)=>setTimeout(()=>tone(f,0.18,"sine",0.14),i*120));}
   else if(k==="catch"){[523,440,523,659].forEach((f,i)=>setTimeout(()=>tone(f,0.12,"sine",0.14),i*110));}
+  else if(k==="drop"){tone(1320,0.05,"sine",0.08);}
   else if(k==="buy"){tone(880,0.06,"sine",0.12);setTimeout(()=>tone(1175,0.08,"sine",0.12),50);}
 }
 function toggleBgm(){ensureAudio();state.flags.bgmOff=!state.flags.bgmOff;if(mg)mg.gain.value=state.flags.bgmOff?0:0.09;$id("bgmBtn").textContent=state.flags.bgmOff?"♪̸":"♪";if(!state.flags.bgmOff&&curTrack){const t=curTrack;curTrack=null;playMusic(t);}}
@@ -1017,7 +1606,7 @@ function startDialogue(name,color,lines,onEnd){dlg={lines,idx:0,onEnd};$id("port
 function advanceDialogue(){if(!dlg)return;dlg.idx++;if(dlg.idx>=dlg.lines.length){$id("dialogue").classList.remove("show");const cb=dlg.onEnd;dlg=null;if(cb)cb();}else $id("dlgText").textContent=dlg.lines[dlg.idx];}
 
 /* ===== 移動 ===== */
-function uiOpen(){return $id("menu").classList.contains("show")||$id("shop").classList.contains("show")||$id("register").classList.contains("show")||$id("ranking").classList.contains("show")||$id("versus").classList.contains("show")||$id("titlescreen").style.display!=="none"||$id("battle").style.display==="block"||$id("ending").classList.contains("show")||$id("starterModal").classList.contains("show");}
+function uiOpen(){return $id("dojo").style.display==="block"||$id("dojoMenu").classList.contains("show")||$id("menu").classList.contains("show")||$id("shop").classList.contains("show")||$id("register").classList.contains("show")||$id("ranking").classList.contains("show")||$id("versus").classList.contains("show")||$id("titlescreen").style.display!=="none"||$id("battle").style.display==="block"||$id("ending").classList.contains("show")||$id("starterModal").classList.contains("show");}
 function tryMove(dx,dy){
   if(dlg||uiOpen())return;
   const nx=state.px+dx,ny=state.py+dy;const A=AREAS[state.area],rec=POS[state.area];
@@ -1032,6 +1621,7 @@ function tryMove(dx,dy){
     if(rec.shop&&rec.shop.x===nx&&rec.shop.y===ny){openShop();return;}
     if(rec.reg&&rec.reg.x===nx&&rec.reg.y===ny){openRegister();return;}
     if(rec.rank&&rec.rank.x===nx&&rec.rank.y===ny){openRanking();return;}
+    if(rec.dojo&&rec.dojo.x===nx&&rec.dojo.y===ny){openDojoMenu();return;}
   }
   const t=(ny>=0&&ny<ROWS&&nx>=0&&nx<COLS)?MAP[ny][nx]:"#";
   if(t===">"){changeArea(state.area+1,"prev");return;}
@@ -1068,66 +1658,86 @@ function challengeTrainer(t){
   startDialogue(t.name,t.color||"#9a7cf0",[ (BOSS_LINES[t.id]?BOSS_LINES[t.id].intro:"勝負だ！") ],()=>beginTrainerBattle(t));
 }
 function beginTrainerBattle(t){
-  const foeTeam=t.team.map(m=>makeMon(m.sp,m.lv));
+  const foeTeam=t.team.map(m=>makeMon(m.sp,m.lv,m.salt||DEFAULT_SALT));
   beginBattle({type:"trainer",trainer:t,foeTeam,foe:foeTeam[0]});
 }
 function beginBattle(cfg){
   if(!firstAlive(state.party)){toast("戦えるモンスターがいない！回復所(✚)へ");return;}
   B={...cfg, myIdx:state.party.findIndex(m=>m.hp>0), turn:0, usedQ:[], combo:0, curQ:null, awaitMove:true, caught:false};
   dexAdd(B.foe.sp);
-  $id("viewport").style.display="none";$id("battle").style.display="block";
+  stopWalk();stopHold();
+  $id("viewport").style.display="none";$id("battle").style.display="block";$id("app").classList.add("battling");$id("battle").scrollTop=0;
+  ["foeArt","myArt"].forEach(k=>{$id(k).dataset.sp="";});
   $id("battle").classList.toggle("trainer",cfg.type==="trainer");
   playMusic("battle");renderBattle();
   const foeName=SPECIES[B.foe.sp].name;
-  log('<span class="sys">⚔ </span>'+(cfg.type==="trainer"?(cfg.trainer.name+'が勝負を仕掛けてきた！'):('野生の'+foeName+'が現れた！')));
+  log('<span class="sys">⚔ </span>'+(cfg.type==="trainer"?(escapeHtml(cfg.trainer.name)+'が勝負を仕掛けてきた！'):('野生の'+foeName+'が現れた！')));
   showMoveMenu();
 }
 function myMon(){return state.party[B.myIdx];}
 function renderBattle(){
   const foe=B.foe,my=myMon();
   $id("foeName").textContent=SPECIES[foe.sp].name;
-  $id("foeLv").textContent="Lv"+foe.lv;
+  $id("foeLv").textContent="Lv"+foe.lv+(foe.salt?"　"+saltLabel(foe.salt,false):"");
   $id("foeType").innerHTML=typeBadge(SPECIES[foe.sp].type);
-  $id("foeArt").innerHTML=monSVG(foe.sp);
-  $id("foeHp").style.width=Math.max(0,foe.hp/foe.maxhp*100)+"%";
+  setArt("foeArt",foe.sp);
+  setHp("foeHp",foe.hp/foe.maxhp);
   $id("myName").textContent=SPECIES[my.sp].name;
-  $id("myLv").textContent="Lv"+my.lv;
+  $id("myLv").textContent="Lv"+my.lv+(my.salt?"　"+saltLabel(my.salt,true):"");
   $id("myType").innerHTML=typeBadge(SPECIES[my.sp].type);
-  $id("myArt").innerHTML=monSVG(my.sp);
-  $id("myHp").style.width=Math.max(0,my.hp/my.maxhp*100)+"%";
+  setArt("myArt",my.sp);
+  setHp("myHp",my.hp/my.maxhp);
   $id("myHpTxt").textContent=my.hp+"/"+my.maxhp;
   $id("myExp").style.width=(my.exp/expToNext(my.lv)*100)+"%";
-  $id("comboTag").textContent=B.combo>=2?("🔥"+B.combo):"";
+  $id("comboTag").textContent=B.combo>=2?("🔥"+B.combo+"コンボ"):"";
+  renderPartyPanel();
   // 控え表示
   $id("partyDots").innerHTML=state.party.map((m,i)=>`<span class="pdot ${m.hp>0?'':'ko'} ${i===B.myIdx?'cur':''}" title="${SPECIES[m.sp].name}"></span>`).join("");
 }
-function typeBadge(tp){const T=TYPES[tp];return `<span class="tbadge" style="background:${T.color}22;border-color:${T.color};color:${T.color}">${T.name}</span>`;}
+function setArt(id,sp){const el=$id(id);if(el.dataset.sp===sp)return;el.dataset.sp=sp;el.innerHTML=monSVG(sp);
+  el.classList.remove("enter");void el.offsetWidth;el.classList.add("enter");}
+function setHp(id,r){const el=$id(id);r=Math.max(0,r);el.style.width=(r*100)+"%";el.className=hpCls(r);}
+/* ダメージ数字のポップアップ */
+function popDmg(id,text,kind){const host=$id(id);if(!host)return;const s=document.createElement("span");s.className="dmgPop "+(kind||"");s.textContent=text;host.appendChild(s);setTimeout(()=>s.remove(),950);}
+function typeBadge(tp){const T=TYPES[tp]||TYPES.normal;return `<span class="tbadge" style="--tc:${T.color}">${T.name}</span>`;}
 function showMoveMenu(){
   if(!B)return;
   B.awaitMove=true;const my=myMon();const acts=$id("battleMenu");acts.innerHTML="";
   my.moves.forEach(mk=>{const mv=MOVES[mk];const b=document.createElement("button");b.className="mvBtn";
-    b.innerHTML=`<b>${mv.name}</b><span class="mvmeta">${TYPES[mv.type].name}・威力${mv.power}</span>`;
+    const et=moveTypeFor(mv,my), tn=TYPES[mv.type].name+(et!==mv.type?"→"+TYPES[et].name+"として":"");
+    b.style.setProperty("--tc",TYPES[et].color);
+    b.innerHTML=`<b>${mv.name}</b><span class="mvmeta">${tn}・威力${mv.power}</span>`;
     b.onclick=()=>useMove(mk);acts.appendChild(b);});
   // コマンド
   const row=document.createElement("div");row.className="cmdRow";
-  const bag=document.createElement("button");bag.className="cmdBtn";bag.textContent="🎒 道具";bag.onclick=showBag;
-  const sw=document.createElement("button");sw.className="cmdBtn";sw.textContent="🔄 交代";sw.onclick=showSwitch;
+  const bag=document.createElement("button");bag.className="cmdBtn";bag.textContent="🎒 道具";bag.onclick=()=>showBag();
+  /* onclick に showSwitch を直接渡すとクリックイベントが forced 扱いになり「戻る」が出ずに固まるので、明示的に false を渡す。
+     交代できる仲間がいなければボタン自体を押せなくする */
+  const canSwitch=state.party.some((m,i)=>m.hp>0&&i!==B.myIdx);
+  const sw=document.createElement("button");sw.className="cmdBtn";sw.textContent="🔄 交代";sw.onclick=()=>showSwitch(false);sw.disabled=!canSwitch;
+  if(!canSwitch)sw.title="交代できる仲間がいない";
   const run=document.createElement("button");run.className="cmdBtn";run.textContent=B.type==="wild"?"🏃 逃げる":"―";if(B.type==="wild")run.onclick=tryRun;else run.disabled=true;
   row.appendChild(bag);row.appendChild(sw);row.appendChild(run);acts.appendChild(row);
   $id("quizArea").style.display="none";
 }
+function eliteFoe(){ // 四天王(rank≥3)・博士・Administrator戦なら構造理解型の問題にする
+  return B && B.type==="trainer" && B.trainer && ((B.trainer.rank>=3) || B.trainer.admin);
+}
 function useMove(mk){
   const mv=MOVES[mk];B.pendingMove=mk;
-  // クイズ出題
-  const pool=QUESTIONS[mv.qkey];let idxs=pool.map((_,i)=>i).filter(i=>!B.usedQ.includes(mv.qkey+i));
-  if(idxs.length===0){B.usedQ=B.usedQ.filter(s=>!s.startsWith(mv.qkey));idxs=pool.map((_,i)=>i);}
-  const qi=idxs[(Math.random()*idxs.length)|0];B.usedQ.push(mv.qkey+qi);
+  // クイズ出題: 四天王以上は構造理解型(成立条件・前提)プールを使う
+  let qkey=mv.qkey;
+  if(eliteFoe() && typeof ELITE_HARD!=="undefined" && ELITE_HARD[mv.type] && QUESTIONS[ELITE_HARD[mv.type]]) qkey=ELITE_HARD[mv.type];
+  const pool=QUESTIONS[qkey];let idxs=pool.map((_,i)=>i).filter(i=>!B.usedQ.includes(qkey+i));
+  if(idxs.length===0){B.usedQ=B.usedQ.filter(s=>!s.startsWith(qkey));idxs=pool.map((_,i)=>i);}
+  const qi=idxs[(Math.random()*idxs.length)|0];B.usedQ.push(qkey+qi);
   let base=pool[qi];if(base.gen){try{base=base.gen();}catch(e){base={q:"(生成エラー)",correct:"-",wrong:["a","b","c"]};}}
   const opts=shuffle([{t:base.correct,ok:true},...base.wrong.map(w=>({t:w,ok:false}))]);
   B.curQ={opts};
   $id("battleMenu").innerHTML="";
   $id("quizArea").style.display="block";
-  $id("quizMove").innerHTML=`<b style="color:${TYPES[mv.type].color}">${mv.name}</b> ― 正解で発動！`;
+  $id("quizMove").style.setProperty("--tc",TYPES[mv.type].color);
+  $id("quizMove").innerHTML=`<b>${mv.name}</b> ― 正解で発動！`;
   $id("quizQ").textContent=base.q;
   const box=$id("quizChoices");box.innerHTML="";
   opts.forEach((o,i)=>{const b=document.createElement("button");b.className="qchoice";b.textContent=o.t;b.onclick=()=>answerMove(i,b);box.appendChild(b);});
@@ -1155,21 +1765,27 @@ function answerMove(i,btn){
   if(o.ok){
     B.combo++;btn.classList.add("correct");
     // ダメージ計算
-    const mul=typeMul(mv.type,SPECIES[foe.sp].type);
+    const mul=typeMulMon(mv,my,foe);
     let dmg=calcDamage(mv,my,foe,mul,true);
     if(mul>=2){sfx("super");}else if(mul<=0.5){sfx("weak");}else{sfx("hit");}
     const art=$id("foeArt");art.classList.add("hit");setTimeout(()=>art.classList.remove("hit"),300);
-    foe.hp=Math.max(0,foe.hp-dmg);renderBattle();
+    foe.hp=Math.max(0,foe.hp-dmg);renderBattle();popDmg("foeArt","-"+dmg,mul>=2?"super":(mul<=0.5?"weak":""));
     let eff=mul>=2?" 効果は抜群だ！":(mul<=0.5?" 効果はいまひとつ…":"");
-    log('正解！ '+SPECIES[my.sp].name+'の'+mv.name+'！ '+dmg+'ダメージ'+(B.combo>=3?'（コンボ）':'')+'。'+eff);
+    log('正解！ '+SPECIES[my.sp].name+'の'+mv.name+'！ '+dmg+'ダメージ'+(B.combo>=3?'（コンボ）':'')+'。'+eff+saltHint(mv,my,foe));
     if(foe.hp<=0){setTimeout(foeFainted,700);}else{setTimeout(foeTurn,900);}
   }else{
-    B.combo=0;btn.classList.add("wrong");sfx("miss");
+    B.combo=0;btn.classList.add("wrong");sfx("miss");popDmg("foeArt","MISS","miss");
     B.curQ.opts.forEach((oo,idx)=>{if(oo.ok)document.querySelectorAll(".qchoice")[idx].classList.add("correct");});
     log('不正解… '+SPECIES[my.sp].name+'は技を出せなかった！');
     setTimeout(foeTurn,1400);
   }
 }
+/* 塩の相手に酸・塩基として技を当てたとき、なぜその倍率かを1戦に1回だけ説明する */
+function saltHint(mv,att,def){ if(!def.salt||!B||B.saltHinted)return "";
+  const at=moveTypeFor(mv,att); if(at!=="acid"&&at!=="base")return "";
+  B.saltHinted=true; const S=SALTS[def.salt], lq=LIQ[saltLiq(def.salt)].name;
+  return '<br><span class="sub">💡 '+S.formula+'（'+S.name+'）は '+S.acid.split(" ")[0]+'＋'+S.base.split(" ")[0]+'（'+saltOrigin(def.salt)+'）の塩 → 水溶液は<b>'+lq+'</b>。'
+    +(lq==="中性"?'酸・塩基の技は等倍。':(lq==="塩基性"?'塩基として扱うので、酸の技が効果抜群。':'酸として扱うので、塩基の技が効果抜群。'))+'</span>'; }
 function foeTurn(){
   if(!B)return;
   const foe=B.foe,my=myMon();
@@ -1179,16 +1795,16 @@ function foeTurn(){
   const fsp=SPECIES[foe.sp];const fmoves=foe.moves.length?foe.moves:["tackle"];const mk=pick2(fmoves);const mv=MOVES[mk];
   const hitChance=0.8;
   if(Math.random()<hitChance){
-    const mul=typeMul(mv.type,SPECIES[my.sp].type);
+    const mul=typeMulMon(mv,foe,my);
     let dmg=calcDamage(mv,foe,my,mul,false);
     my.hp=Math.max(0,my.hp-dmg);
     if(mul>=2)sfx("super");else sfx("hit");
     const art=$id("myArt");art.classList.add("hit");setTimeout(()=>art.classList.remove("hit"),300);
-    renderBattle();
+    renderBattle();popDmg("myArt","-"+dmg,mul>=2?"super":(mul<=0.5?"weak":""));
     let eff=mul>=2?" 効果は抜群だ！":(mul<=0.5?" 効果はいまひとつ…":"");
     log('相手の'+SPECIES[foe.sp].name+'の'+mv.name+'！ '+dmg+'ダメージ。'+eff);
     if(my.hp<=0){setTimeout(afterMyFaint,800);return;}
-  }else{ log('相手の'+SPECIES[foe.sp].name+'の攻撃は外れた！'); }
+  }else{ popDmg("myArt","MISS","miss"); log('相手の'+SPECIES[foe.sp].name+'の攻撃は外れた！'); }
   setTimeout(showMoveMenu,900);
 }
 function foeFainted(){
@@ -1211,10 +1827,10 @@ function foeFainted(){
 function winTrainer(){
   const t=B.trainer;
   const isAdmin=(t.id==="t_admin");
-  if(t.player){ toast("🏅 "+t.name+"の編成に勝利！"); } // 自由対戦: バッジ対象外、何度でも挑める
+  if(t.player){ toast("🏅 "+escapeHtml(t.name)+"の編成に勝利！"); } // 自由対戦: バッジ対象外、何度でも挑める
   else if(isAdmin){ if(!state.beaten.includes(t.id)){state.beaten.push(t.id);} toast("⚡ <b>Administrator を撃破！</b> 塔の真の管理者だ！"); }
   else if(!state.beaten.includes(t.id)){state.beaten.push(t.id);
-    if(!state.badges.includes(t.id)){state.badges.push(t.id);}toast("🏅 バッジ獲得！ "+t.name+"を倒した！");
+    if(!state.badges.includes(t.id)){state.badges.push(t.id);}toast("🏅 バッジ獲得！ "+escapeHtml(t.name)+"を倒した！");
   }
   // 勝敗記録: 自分の勝ち。CPU相手ならそのCPUの成績も更新
   state.wins=(state.wins||0)+1;
@@ -1284,6 +1900,7 @@ function doSwitch(i,forced){B.myIdx=i;renderBattle();log(SPECIES[myMon().sp].nam
 function tryCatch(){
   if(B.type!=="wild"){toast("トレーナーのモンスターは捕まえられない");return;}
   if(state.bag.ball<=0){toast("ボールがない");return;}
+  if(CHEM[B.foe.sp]){startTitration();return;} // 酸・塩基タイプは中和滴定で捕獲
   state.bag.ball--;const foe=B.foe;
   const rate=clamp(1-foe.hp/foe.maxhp,0,1)*0.6+0.25; // HPが低いほど捕まえやすい
   $id("battleMenu").innerHTML="";log('🔮 捕獲ボールを投げた…！');
@@ -1298,9 +1915,381 @@ function tryCatch(){
     }else{log('あと少し…！ '+SPECIES[foe.sp].name+'は飛び出した！');setTimeout(foeTurn,900);}
   },800);
 }
+/* ===== 中和滴定ミニゲーム（酸・塩基タイプの捕獲） ===== */
+let TT=null; // 滴定の状態
+function startTitration(){
+  const foe=B.foe, an=CHEM[foe.sp];
+  state.bag.ball--; saveState();
+  const C0=pick(TIT.concs);
+  TT={an,C0,Veq:Math.round(eqVolume(an,C0)*100)/100,v:0,ind:null,hpRatio:foe.hp/foe.maxhp,done:false};
+  $id("battleMenu").innerHTML=""; $id("quizArea").style.display="none";
+  const box=$id("titArea"); box.style.display="block";
+  const tr=titrant(an);
+  log('🔮 捕獲ボールを投げた… <b>中和滴定</b>で捕まえよう！');
+  box.innerHTML=`<div class="titHead">🧪 中和滴定で捕獲</div>
+   <div class="titInfo">コニカルビーカー: <b>${SPECIES[foe.sp].name}</b> ＝ ${an.name} <b>${an.formula}</b>（${an.strong?"強":"弱"}${an.kind==="acid"?"酸":"塩基"}・${an.z}価）10.00 mL、濃度は不明<br>
+   ビュレット: 0.100 mol/L ${tr.name} <b>${tr.formula}</b></div>
+   <div class="titQ">まず指示薬を選ぼう。中和点のpHは何性になる？</div>
+   <div class="titInds">${Object.entries(INDICATORS).map(([k,ind])=>`<button class="mvBtn" data-ind="${k}"><b>${ind.name}</b><span class="mvmeta">${ind.desc}</span></button>`).join("")}</div>`;
+  box.querySelectorAll("[data-ind]").forEach(b=>b.onclick=()=>chooseIndicator(b.dataset.ind));
+}
+function chooseIndicator(k){
+  TT.ind=k; const ind=INDICATORS[k]; const box=$id("titArea");
+  box.innerHTML=`<div class="titHead">🧪 ${ind.name} を加えた</div>
+   <div class="titStage">
+     <svg class="titBuret" viewBox="0 0 40 200"><rect x="14" y="4" width="12" height="166" rx="3" fill="#fff" stroke="#2a2350" stroke-width="2"/>
+       <rect id="titLiquid" x="15" y="5" width="10" height="164" fill="rgba(92,200,255,.45)"/>
+       ${Array.from({length:11},(_,i)=>`<line x1="14" x2="${i%5===0?22:19}" y1="${5+i*16.4}" y2="${5+i*16.4}" stroke="#2a2350" stroke-width="1"/>`).join("")}
+       <path d="M17 170 h6 l-1 14 h-4 z" fill="#fff" stroke="#2a2350" stroke-width="1.5"/><rect x="11" y="174" width="18" height="4" rx="2" fill="#ffd23f" stroke="#2a2350" stroke-width="1.2"/>
+       <circle id="titDrop" cx="20" cy="192" r="2.6" fill="rgba(92,200,255,.9)" opacity="0"/></svg>
+     <svg class="titFlask" viewBox="0 0 120 120">
+       <defs><clipPath id="flaskClip"><path d="M48 10 h24 v30 l34 66 q3 8 -6 8 h-80 q-9 0 -6 -8 l34 -66 z"/></clipPath></defs>
+       <path d="M48 10 h24 v30 l34 66 q3 8 -6 8 h-80 q-9 0 -6 -8 l34 -66 z" fill="#fff"/>
+       <g clip-path="url(#flaskClip)"><rect x="0" y="58" width="120" height="62" fill="rgba(160,215,255,.35)"/><rect id="titColor" x="0" y="58" width="120" height="62" fill="${indicatorRGBA(ind,solvePH(TT.an,TT.C0,0))}"/></g>
+       <path d="M48 10 h24 v30 l34 66 q3 8 -6 8 h-80 q-9 0 -6 -8 l34 -66 z" fill="none" stroke="#2a2350" stroke-width="3" stroke-linejoin="round"/>
+       <path d="M30 64 l-10 22" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".8"/></svg>
+   </div>
+   <div class="titVol">滴下量 <b id="titV">0.00</b> mL</div>
+   <div class="titBtns">
+     <button class="mvBtn" data-dv="2"><b>どばっと</b><span class="mvmeta">+2.00 mL</span></button>
+     <button class="mvBtn" data-dv="0.5"><b>少し</b><span class="mvmeta">+0.50 mL</span></button>
+     <button class="mvBtn" data-dv="0.05"><b>1滴</b><span class="mvmeta">+0.05 mL</span></button>
+     <button class="cmdBtn titStop" id="titStop">✋ ここで止める（終点）</button>
+   </div>
+   <div class="titHint">色が変わって、振り混ぜても戻らなくなったら止めよう。入れすぎは失敗！</div>`;
+  box.querySelectorAll("[data-dv]").forEach(b=>b.onclick=()=>addTitrant(parseFloat(b.dataset.dv)));
+  $id("titStop").onclick=finishTitration;
+  updateTitration();
+}
+function addTitrant(dv){
+  if(!TT||TT.done)return;
+  TT.v=Math.round((TT.v+dv)*100)/100;
+  if(TT.v>=50){TT.v=50;updateTitration();toast("ビュレットが空になった！");finishTitration();return;}
+  sfx("drop"); const d=$id("titDrop"); if(d){d.setAttribute("opacity","1");setTimeout(()=>d.setAttribute("opacity","0"),180);}
+  updateTitration();
+}
+function updateTitration(){
+  const pH=solvePH(TT.an,TT.C0,TT.v);
+  $id("titColor").setAttribute("fill",indicatorRGBA(INDICATORS[TT.ind],pH));
+  $id("titV").textContent=TT.v.toFixed(2);
+  const L=$id("titLiquid"); const frac=1-TT.v/50; L.setAttribute("y",5+164*(1-frac)); L.setAttribute("height",164*frac);
+}
+function finishTitration(){
+  if(!TT||TT.done)return; TT.done=true;
+  const {an,C0,Veq,v,hpRatio}=TT, ind=INDICATORS[TT.ind];
+  const {ok,near,indOK,err,tol,eqPH,cv}=titrationJudge(an,C0,TT.ind,v,hpRatio);
+  let why;
+  if(ok) why=`中和点（pH≈${eqPH.toFixed(1)}・${liquidity(eqPH)}）の近くで色が変わる指示薬を選び、誤差 ${Math.abs(err).toFixed(2)} mL で止められた！`;
+  else if(!indOK){ const where=cv.begin<Veq?"手前":"後"; 
+    why=(near?"中和点付近で止められたのは偶然。":"")+`${an.name}を${titrant(an).formula}で滴定すると、中和点は pH≈${eqPH.toFixed(1)}（${liquidity(eqPH)}）。${ind.name}は pH ${ind.lo}〜${ind.hi} で変色するので、中和点よりずっと${where}で色が変わってしまう。${an.strong?"":(an.kind==="acid"?"弱酸＋強塩基 → 中和点は塩基性側。":"強酸＋弱塩基 → 中和点は酸性側。")}`; }
+  else if(err<0) why=`指示薬の選択は正しい！ でもまだ中和点の手前（あと約 ${(-err).toFixed(2)} mL）。色が変わりきるまで待とう。`;
+  else why=`指示薬の選択は正しい！ でも入れすぎ（中和点を ${err.toFixed(2)} mL 超過）。終点が近づいたら1滴ずつ。`;
+  TTlast={...TT};
+  const box=$id("titArea");
+  box.innerHTML=`<div class="titHead">${ok?"🎉 終点ぴったり！":"💧 滴定失敗…"}</div>
+   <canvas id="titCurve"></canvas>
+   <div class="titLegend"><span style="color:#2f6bff">━ 滴定曲線</span>　<span style="color:#ef8700">┆ 中和点 ${Veq.toFixed(2)} mL</span>　<span style="color:${ok?'#1fae58':'#ff4d5e'}">▼ あなた ${v.toFixed(2)} mL</span>　<span style="color:#b25cf0">▒ 変色域</span></div>
+   <div class="note" style="margin-top:6px">${why}<br><span class="sub">この問題の濃度: ${C0.toFixed(3)} mol/L（${an.z}×${C0.toFixed(3)}×10.00 = 0.100×V より V=${Veq.toFixed(2)} mL）／ 許容誤差 ±${tol.toFixed(2)} mL（弱らせるほど広がる）</span></div>
+   <div style="text-align:center;margin-top:8px"><button class="startBtn" id="titNext" style="font-size:13px;padding:9px 26px">${ok?"仲間にする":"戦闘に戻る"}</button></div>`;
+  drawTitCurve(ind,v);
+  if(ok)sfx("catch"); else sfx("miss");
+  $id("titNext").onclick=()=>{ box.style.display="none"; box.innerHTML=""; const r=ok; TT=null; r?catchSuccess():catchFail(); };
+}
+/* 滴定曲線（汎用）。o={pHat:v=>pH, Veq, vmax, vStop, band:{lo,hi}|null, ok, xlabel} */
+function drawCurve(cv,o){
+  const g=cv.getContext("2d"),dpr=window.devicePixelRatio||1;
+  const W=Math.max(280,cv.clientWidth||520),H=Math.round(W*0.46),pl=34,pr=10,pt=10,pb=26;
+  cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);cv.style.height=H+"px";g.setTransform(dpr,0,0,dpr,0,0);
+  const vmax=o.vmax, X=v=>pl+(W-pl-pr)*v/vmax, Y=p=>pt+(H-pt-pb)*(1-p/14);
+  g.clearRect(0,0,W,H); g.font="bold 11px sans-serif";
+  if(o.band){ g.fillStyle="rgba(178,92,240,.18)"; g.fillRect(pl,Y(o.band.hi),W-pl-pr,Y(o.band.lo)-Y(o.band.hi)); }
+  g.strokeStyle="#e7e2f7"; g.lineWidth=1; g.fillStyle="#6d6894";
+  for(let p=0;p<=14;p+=2){g.beginPath();g.moveTo(pl,Y(p));g.lineTo(W-pr,Y(p));g.stroke();if(p<14)g.fillText(String(p),pl-16,Y(p)+3);}
+  g.fillText("pH",pl-22,Y(14)+4); g.fillText(o.xlabel||"滴下量 (mL)",W-70,H-4);
+  const step=vmax>30?10:(vmax>12?5:2); for(let v=0;v<=vmax-step*0.6;v+=step){g.fillText(String(v),X(v)-4,H-pb+13);}
+  g.strokeStyle="#ef8700"; g.lineWidth=2; g.setLineDash([5,4]); g.beginPath(); g.moveTo(X(o.Veq),pt); g.lineTo(X(o.Veq),H-pb); g.stroke(); g.setLineDash([]);
+  g.strokeStyle="#2f6bff"; g.lineWidth=3; g.lineJoin="round"; g.beginPath();
+  for(let i=0;i<=400;i++){const v=vmax*i/400,p=o.pHat(v); i?g.lineTo(X(v),Y(p)):g.moveTo(X(v),Y(p));} g.stroke();
+  if(o.vStop!=null){ const vs=Math.min(o.vStop,vmax), ps=o.pHat(vs); g.fillStyle=o.ok?"#1fae58":"#ff4d5e"; g.strokeStyle="#2a2350"; g.lineWidth=1.5;
+    g.beginPath(); g.moveTo(X(vs),Y(ps)-3); g.lineTo(X(vs)-6,Y(ps)-13); g.lineTo(X(vs)+6,Y(ps)-13); g.closePath(); g.fill(); g.stroke(); }
+}
+function drawTitCurve(ind,vStop){ const T=TTlast;
+  drawCurve($id("titCurve"),{pHat:v=>solvePH(T.an,T.C0,v),Veq:T.Veq,vmax:Math.max(T.Veq*2,vStop+1),vStop,band:ind,ok:Math.abs(vStop-T.Veq)<=titTolerance(T.Veq,T.hpRatio)}); }
+let TTlast=null;
+function catchSuccess(){ const foe=B.foe;
+  const caught={...foe,hp:foe.maxhp};
+  if(state.party.length<6)state.party.push(caught);else state.box.push(caught);
+  dexAdd(foe.sp);state.flags.caughtAny=true;
+  toast("🎉 "+SPECIES[foe.sp].name+"を捕まえた！");sfx("win");saveState();
+  setTimeout(()=>endBattle(),600); }
+function catchFail(){ log(SPECIES[B.foe.sp].name+'は飛び出した！'); setTimeout(foeTurn,600); }
 function tryRun(){ if(Math.random()<0.7){toast("うまく逃げ切れた");endBattle();}else{log('逃げられなかった！');setTimeout(foeTurn,700);} }
-function endBattle(after){$id("battle").style.display="none";$id("battle").classList.remove("trainer");$id("viewport").style.display="block";
+function endBattle(after){$id("battle").style.display="none";$id("battle").classList.remove("trainer");$id("viewport").style.display="block";$id("app").classList.remove("battling");
+  requestAnimationFrame(relayout);
   const A=AREAS[state.area];playMusic(A.kind==="arena"?"arena":"field");B=null;refresh();drawMinimap();if(after)after();}
+
+/* =========================================================
+   中和道場（設計: docs/design-neutralization-battle.md）
+   段1 identify: 3つのビーカーを指示薬で調べてから中和
+   段2〜4 seq  : 1体ずつ、計算して標準液を注ぐ（反撃あり）
+   段5 titrate : 指示薬の色だけで終点を見きわめ、できた塩の性質を予想（反撃なし）
+   ========================================================= */
+let DJ=null;
+const DOJO_MASTER={name:"中和道場の師範 ナカ",color:"#1fb866"};
+const LIQ_JA={acid:"酸性",base:"塩基性",neutral:"中性"};
+function dojoFlags(){const f=state.flags;
+  if(!f.dojo||typeof f.dojo!=="object")f.dojo={};
+  if(!f.dojo.stars||typeof f.dojo.stars!=="object")f.dojo.stars={};
+  if(!f.dojo.salts||typeof f.dojo.salts!=="object")f.dojo.salts={};
+  return f.dojo;}
+function dojoMe(){return state.party.find(m=>m.hp>0)||state.party[0];}
+function openDojoMenu(){
+  const show=()=>{$id("dojoMenu").classList.add("show");renderDojoMenu();};
+  if(!state.flags.dojoMet){state.flags.dojoMet=true;saveState();
+    startDialogue(DOJO_MASTER.name,DOJO_MASTER.color,[
+      "ここは中和道場。酸と塩基を、計算と観察で中和する修行の場だ。",
+      "標準液は道場が貸そう。0.10 mol/L の水酸化ナトリウム水溶液 NaOH と、0.10 mol/L の塩酸 HCl の2本だ。",
+      "相手のビーカーをちょうど中和できたら勝ち。入れすぎると、逆の性質になってしまうぞ。",
+      "時間をかけると相手の反撃を受ける。紙と鉛筆で計算してから注ぐのが近道だ。電卓は使わずにな！"],show);return;}
+  show();}
+function closeDojoMenu(){$id("dojoMenu").classList.remove("show");}
+function renderDojoMenu(){const F=dojoFlags();
+  let h=`<div class="note" style="margin-bottom:12px">標準液（0.10 mol/L の NaOH と HCl）を注いで、相手のビーカーをちょうど中和しよう。どの段からでも挑戦できる。<b>本番</b>は毎回同じ問題、<b>練習</b>は毎回ちがう問題（星はつかない）。${F.badge?"<br>🏅 道場バッジ獲得ずみ！":""}</div>`;
+  DOJO_STAGES.forEach(st=>{const n=F.stars[st.no]||0;
+    h+=`<div class="row stg"><div class="info"><span class="stgNo">段${st.no}</span> ${st.title}<div class="sub">${st.unit}</div><div class="sub">${st.goal}</div>
+      <div class="stars" aria-label="星${n}つ">${"★".repeat(n)}<span class="off">${"★".repeat(3-n)}</span></div></div>
+      <div class="monbtns"><button class="actBtn" onclick="startDojo(${st.no},false)">本番</button>${[2,3,4].includes(st.no)?`<button class="miniBtn" onclick="startDojo(${st.no},true)">練習</button>`:""}</div></div>`;});
+  $id("dojoMenuBody").innerHTML=h;}
+
+function startDojo(no,practice){
+  const st=DOJO_STAGES.find(s=>s.no===no); if(!st)return;
+  if(!state.party.length){toast("手持ちがいない");return;}
+  closeDojoMenu(); stopWalk(); stopHold(); healAll();
+  const specs=practice?dojoPractice(no,Math.random):st.beakers;
+  DJ={st,no,practice,specs,beakers:specs.map(makeBeaker),cur:st.mode==="identify"?null:0,std:null,input:"",
+    turns:0,tests:0,pours:0,flips:0,fails:0,predOK:0,known:specs.map(()=>({})),btb:false,phase:"play",busy:false,ti:null};
+  $id("viewport").style.display="none"; $id("dojo").style.display="block"; $id("app").classList.add("battling"); $id("dojo").scrollTop=0;
+  playMusic("battle");
+  log(`<span class="sys">🥋 </span>段${no}「${st.title}」${practice?"（練習）":""}開始！ ${st.goal}`);
+  if(st.mode==="titrate") dojoTitStart(); else renderDojo();
+}
+function endDojo(){ $id("dojo").style.display="none"; $id("viewport").style.display="block"; $id("app").classList.remove("battling");
+  DJ=null; healAll(); playMusic(AREAS[state.area].kind==="arena"?"arena":"field"); refresh(); saveState(); requestAnimationFrame(relayout); }
+
+/* ---------- 表示 ---------- */
+function bkName(i){const b=DJ.beakers[i]; return DJ.st.mode==="identify"?("ビーカー"+"ABC"[i]):(b.s.name+" "+b.s.formula);}
+function ionOf(s){return s.kind==="acid"?"H⁺":"OH⁻";}
+function identText(k){ if(k.acid===true)return "酸性"; if(k.base===true)return "塩基性";
+  if(k.acid===false&&k.base===false)return "中性"; if(k.acid===false)return "酸性ではない"; if(k.base===false)return "塩基性ではない"; return "？"; }
+function beakerSVG(fill){return `<svg class="bkBeaker" viewBox="0 0 60 64"><path d="M10 6 h40 v48 q0 6 -6 6 h-28 q-6 0 -6 -6 z" fill="#fff"/>
+  <path d="M11 26 h38 v28 q0 5 -5 5 h-28 q-5 0 -5 -5 z" fill="${fill}"/>
+  <path d="M10 6 h40 v48 q0 6 -6 6 h-28 q-6 0 -6 -6 z M6 6 h48" fill="none" stroke="#2a2350" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+  <path d="M16 32 v18" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".8"/></svg>`;}
+function phMeterHTML(p){return `<div class="phMeter"><div class="phBar"><span class="phNeedle" style="left:${clamp(p/14*100,0,100)}%"></span></div><div class="phVal">pH ${p.toFixed(1)}</div></div>`;}
+function dojoBeakerCard(i){
+  const b=DJ.beakers[i], sp=b.spec, st=DJ.st, show=st.show, k=DJ.known[i], ident=st.mode==="identify", S=b.s;
+  const state_=beakerState(b), p=beakerPH(b);
+  const hidden=ident&&identText(k)==="？";
+  const info=[`体積 <b>${sp.V.toFixed(1)}</b> mL`];
+  if(!ident){
+    if(show.conc) info.push(`濃度 <b>${sig2(sp.C)}</b> mol/L`); else info.push(`濃度 <b>?</b>`);
+    if(show.ph==="init"){ const ph0=sp.pH!=null?sp.pH:sp.phShown; info.push(`最初の pH <b>${ph0}</b>`);
+      if(sp.phShown!=null) info.push(`<span class="hint">発展: [H⁺][OH⁻]＝1.0×10${sup(-14)}</span>`); }
+    if(st.mode!=="titrate") info.push(`${ionOf(S)} の物質量 <b>?</b>`);
+  }else{
+    info.push(`調べた結果 <b>${identText(k)}</b>`);
+    if(k.acid===true||k.base===true) info.push(`${k.acid?"H⁺":"OH⁻"} <b>${sci(b.n0)}</b> mol`);
+  }
+  const fill=DJ.btb?btbRGBA(p):"rgba(160,215,255,.45)";
+  let tag=""; const touched=b.pours.length>0;
+  if(state_.done&&(touched||!ident)&&b.n0>0) tag=`<span class="bkTag ok">✓ 中和</span>`;
+  else if(ident&&b.n0===0&&touched&&!state_.done) tag=`<span class="bkTag ng">⚠ ${LIQ_JA[state_.side]}に</span>`;
+  else if(state_.flipped) tag=`<span class="bkTag ng">⚠ ${LIQ_JA[state_.side]}に逆転</span>`;
+  const sel=ident&&DJ.cur===i?" sel":"", pick=ident?" pick":"";
+  return `<div class="bkCard${sel}${pick}${state_.done&&touched?" done":""}" ${ident?`onclick="dojoSelect(${i})"`:""}>${tag}
+    <div class="bkName">${ident?"ビーカー"+"ABC"[i]:S.name+" "+S.formula}</div>
+    <div class="bkPics"><div class="bkArt${hidden?" hidden":""}">${monSVG(SUBST[sp.sub].sp)}</div>${beakerSVG(fill)}</div>
+    <div class="bkInfo">${info.join("<br>")}</div>
+    ${show.ph==="live"?phMeterHTML(p):""}</div>`;
+}
+function dojoMeCard(){const m=dojoMe(),r=m.hp/m.maxhp;
+  return `<div class="dMe"><div class="bart" id="dMyArt">${monSVG(m.sp)}</div>
+    <div class="bcard"><div class="bname"><span>${SPECIES[m.sp].name}</span>${typeBadge(SPECIES[m.sp].type)}</div>
+    <div class="blv">相棒 Lv${m.lv}</div><div class="hpline"><span class="${hpCls(r)}" style="width:${r*100}%"></span></div><div class="hptxt">${m.hp}/${m.maxhp}</div></div></div>`;}
+function renderDojo(){ if(!DJ)return; const st=DJ.st;
+  let f="";
+  if(st.mode==="identify") f=`<div class="bkRow">${DJ.beakers.map((_,i)=>dojoBeakerCard(i)).join("")}</div>`;
+  else f=`<div class="dProg">相手 ${DJ.cur+1} / ${DJ.beakers.length}</div><div class="bkRow">${dojoBeakerCard(DJ.cur)}</div>`;
+  f+=dojoMeCard();
+  $id("dField").innerHTML=f;
+  if(DJ.phase==="play"&&st.mode!=="titrate") $id("dCmd").innerHTML=dojoPlayCmd();
+  renderPartyPanel();
+}
+function dojoPlayCmd(){const st=DJ.st,ident=st.mode==="identify";
+  let h=`<div class="dGoal"><span class="stgNo">段${st.no}${DJ.practice?" 練習":""}</span> ${st.goal}</div>`;
+  if(ident) h+=`<div class="dLbl">調べる（3つのビーカー全部に使う・1ターン）</div><div class="toolRow">
+      <button class="mvBtn" onclick="dojoTest('blue')"><b>青色リトマス紙</b><span class="mvmeta">酸性なら赤に</span></button>
+      <button class="mvBtn" onclick="dojoTest('red')"><b>赤色リトマス紙</b><span class="mvmeta">塩基性なら青に</span></button>
+      <button class="mvBtn" onclick="dojoTest('btb')"><b>BTB溶液</b><span class="mvmeta">黄・緑・青</span></button></div>
+      <div class="dLbl">注ぐビーカー：<b>${DJ.cur==null?"カードをタップして選ぶ":"ビーカー"+"ABC"[DJ.cur]}</b></div>`;
+  h+=`<div class="dLbl">注ぐ標準液</div><div class="stdRow">${Object.keys(STD).map(k=>`<button class="mvBtn${DJ.std===k?" on":""}" onclick="dojoStd('${k}')"><b>${STD[k].short}</b><span class="mvmeta">${sig2(STD[k].C)} mol/L・${ionOf(STD[k].s)}を出す</span></button>`).join("")}</div>
+    <div class="volBox"><span class="v" id="dVol">${DJ.input||"0"}</span><span>mL</span></div>
+    <div class="kp">${["7","8","9","+1.00","4","5","6","+0.10","1","2","3","+0.05","0",".","⌫","C"].map(k=>`<button class="${/^[0-9.]$/.test(k)?"":"q"}" onclick="dojoKey('${k}')">${k==="C"?"クリア":k}</button>`).join("")}</div>
+    <button class="cmdBtn pourBtn" onclick="dojoPour()">💧 注ぐ</button>`;
+  return h;}
+function dojoSelect(i){ if(!DJ||DJ.phase!=="play"||DJ.busy)return; DJ.cur=i; renderDojo(); }
+function dojoStd(k){ if(!DJ||DJ.busy)return; DJ.std=k; renderDojo(); }
+function dojoKey(k){ if(!DJ||DJ.busy)return; let s=DJ.input;
+  if(k==="⌫")s=s.slice(0,-1); else if(k==="C")s="";
+  else if(k[0]==="+"){const v=Math.min(BURET_MAX,(parseFloat(s)||0)+parseFloat(k.slice(1)));s=(Math.round(v*100)/100).toFixed(2);}
+  else if(k==="."){ if(!s.includes("."))s=(s||"0")+"."; }
+  else { if(/\.\d\d$/.test(s))return; const t=(s==="0"?"":s)+k; if(parseFloat(t)>BURET_MAX){toast("1回に注げるのは "+BURET_MAX.toFixed(2)+" mL まで");return;} s=t; }
+  DJ.input=s; $id("dVol").textContent=s||"0"; }
+
+/* ---------- 段1: 調べる ---------- */
+function dojoTest(tool){ if(!DJ||DJ.phase!=="play"||DJ.busy)return;
+  DJ.tests++; DJ.turns++; sfx("drop");
+  const res=DJ.beakers.map((b,i)=>{const l=liqOf(beakerPH(b)),k=DJ.known[i];
+    if(tool==="blue"){k.acid=(l==="acid");return "ABC"[i]+(l==="acid"?":赤に変わった":":青のまま");}
+    if(tool==="red"){k.base=(l==="base");return "ABC"[i]+(l==="base"?":青に変わった":":赤のまま");}
+    k.acid=(l==="acid");k.base=(l==="base");return "ABC"[i]+":"+(l==="acid"?"黄":l==="base"?"青":"緑");});
+  if(tool==="btb")DJ.btb=true;
+  const nm={blue:"青色リトマス紙",red:"赤色リトマス紙",btb:"BTB溶液"}[tool];
+  log(`🔍 ${nm}で調べた → ${res.join("　")}`);
+  renderDojo(); dojoCounter();
+}
+/* ---------- 注ぐ ---------- */
+function dojoPour(){ if(!DJ||DJ.phase!=="play"||DJ.busy)return;
+  if(!DJ.std){toast("注ぐ標準液（NaOH か HCl）を選ぼう");return;}
+  if(DJ.cur==null){toast("注ぐビーカーをタップして選ぼう");return;}
+  const raw=parseFloat(DJ.input); if(!(raw>0)){toast("注ぐ量をテンキーで入力しよう");return;}
+  let v=Math.min(BURET_MAX,Math.max(0.05,Math.round(raw*20)/20)); const rounded=Math.abs(v-raw)>1e-9;
+  const i=DJ.cur,b=DJ.beakers[i],st=STD[DJ.std],before=beakerState(b);
+  const eq=pourInto(b,DJ.std,v); DJ.pours++; DJ.turns++; DJ.input=""; sfx("drop");
+  const after=beakerState(b), ionIn=ionOf(st.s);
+  let msg=`💧 ${bkName(i)}に ${st.short} を <b>${v.toFixed(2)} mL</b>（${sig2(st.C)} mol/L × ${v.toFixed(2)}/1000 L ＝ ${sci(eq)} mol の ${ionIn}）${rounded?"<span class='sub'>※0.05 mL 刻みに丸めた</span>":""}`;
+  if(!before.done&&before.side===st.s.kind) msg+=`<br>⚠ ${LIQ_JA[before.side]}のビーカーに${st.s.kind==="acid"?"酸":"塩基"}を加えても中和しない。${ionIn} が増えただけ！`;
+  else if(after.done) msg+=after.exact?"<br>🎯 <b>ぴったり中和！</b>":"<br>✓ 中和完了！（誤差 2% 以内）";
+  else if(before.done||after.flipped){ DJ.flips++; msg+=`<br>💥 入れすぎ！ <b>${LIQ_JA[after.side]}</b>になってしまった。${after.side==="acid"?"NaOH":"HCl"} で戻そう。`; }
+  else msg+=`<br>まだ<b>${LIQ_JA[after.side]}</b>。`;
+  log(msg);
+  if(DJ.st.mode==="identify"){
+    renderDojo();
+    if(DJ.beakers.every(x=>beakerState(x).done)){ sfx("win"); setTimeout(()=>dojoFinish(true),500); return; }
+    dojoCounter(); return; }
+  if(after.done){ sfx(after.exact?"super":"hit"); renderDojo(); dojoSummary(); return; }
+  renderDojo(); dojoCounter();
+}
+/* 相手の反撃（1ターン） */
+function dojoCounter(){ DJ.busy=true;
+  setTimeout(()=>{ if(!DJ)return; DJ.busy=false;
+    const m=dojoMe(), dmg=Math.max(1,Math.round(m.maxhp*DOJO_DMG)); m.hp=Math.max(0,m.hp-dmg);
+    const who=DJ.st.mode==="identify"?"ビーカーのしぶき":(SPECIES[SUBST[DJ.beakers[DJ.cur].sub].sp].name+"の反撃");
+    renderDojo(); popDmg("dMyArt","-"+dmg); sfx("hit");
+    log(`${who}！ ${SPECIES[m.sp].name}に ${dmg} ダメージ`);
+    if(m.hp<=0){ const n=state.party.find(x=>x.hp>0);
+      if(!n){ sfx("faint"); dojoFinish(false); return; }
+      log(SPECIES[m.sp].name+"は力尽きた… "+SPECIES[n.sp].name+"が交代して続ける！"); renderDojo(); }
+  },420); }
+/* 1体を中和し終えたときのまとめ（段2〜4） */
+function dojoSummary(){ DJ.phase="summary";
+  const b=DJ.beakers[DJ.cur],sp=b.spec,a=dojoAnswer(sp),stt=STD[a.std],s=beakerState(b);
+  const vEff=Math.abs(b.net0-s.net)/(stt.C*stt.s.z)*1000, last=DJ.cur>=DJ.beakers.length-1;
+  $id("dCmd").innerHTML=`<div class="titHead">${s.exact?"🎯 ぴったり中和！":"✓ 中和完了！"}</div>
+    <canvas id="dCurve"></canvas>
+    <div class="titLegend"><span style="color:#2f6bff">━ ${stt.short} を加えたときの pH</span>　<span style="color:#ef8700">┆ 中和点 ${a.v.toFixed(2)} mL</span>　<span style="color:#1fae58">▼ あなた ${vEff.toFixed(2)} mL 相当</span></div>
+    <div class="note" style="margin-top:6px">中和点の pH は <b>${dojoEqPH(sp).toFixed(1)}</b>（${liquidity(dojoEqPH(sp))}）。<ol class="stepList">${dojoSteps(sp).map(l=>"<li>"+l+"</li>").join("")}</ol></div>
+    <div style="text-align:center;margin-top:8px"><button class="startBtn" style="font-size:1em;padding:9px 26px" onclick="dojoNext()">${last?"結果を見る":"次の相手へ ▶"}</button></div>`;
+  const pHat=v=>{const x=makeBeaker(sp);if(v>0)pourInto(x,a.std,v);return beakerPH(x);};
+  drawCurve($id("dCurve"),{pHat,Veq:a.v,vmax:Math.max(a.v*2,vEff+1),vStop:vEff,band:null,ok:true,xlabel:stt.short+" (mL)"});
+}
+function dojoNext(){ if(!DJ)return; if(DJ.cur>=DJ.beakers.length-1){dojoFinish(true);return;}
+  DJ.cur++; DJ.phase="play"; DJ.std=null; DJ.input=""; log(`次の相手：${bkName(DJ.cur)}`); renderDojo(); }
+
+/* ---------- 段5: 指示薬で滴定し、塩の性質を予想 ---------- */
+function dojoTitAn(){const b=DJ.beakers[DJ.cur];return b.s;}
+function dojoTitStart(){ DJ.phase="titrate"; DJ.ti={ind:null,v:0,stage:"ind"}; renderDojo();
+  const b=DJ.beakers[DJ.cur],an=b.s,std=an.kind==="acid"?"NaOH":"HCl";
+  $id("dCmd").innerHTML=`<div class="dGoal"><span class="stgNo">段5</span> ${DJ.st.goal}</div>
+    <div class="titInfo">コニカルビーカー: <b>${an.name} ${an.formula}</b> 10.00 mL（濃度は不明）<br>ビュレット: ${STD[std].label}</div>
+    <div class="titQ">中和点の pH は何性になる？ それに合う指示薬を選ぼう。</div>
+    <div class="titInds">${Object.entries(INDICATORS).map(([k,ind])=>`<button class="mvBtn" onclick="dojoTitInd('${k}')"><b>${ind.name}</b><span class="mvmeta">${ind.desc}</span></button>`).join("")}</div>`; }
+function dojoTitInd(k){ const ti=DJ.ti; ti.ind=k; ti.v=0; ti.stage="drip"; const ind=INDICATORS[k],b=DJ.beakers[DJ.cur];
+  $id("dCmd").innerHTML=`<div class="titHead">🧪 ${ind.name} を加えた</div>
+    <div class="titStage"><svg class="titFlask" viewBox="0 0 120 120"><defs><clipPath id="dFlaskClip"><path d="M48 10 h24 v30 l34 66 q3 8 -6 8 h-80 q-9 0 -6 -8 l34 -66 z"/></clipPath></defs>
+      <path d="M48 10 h24 v30 l34 66 q3 8 -6 8 h-80 q-9 0 -6 -8 l34 -66 z" fill="#fff"/>
+      <g clip-path="url(#dFlaskClip)"><rect x="0" y="58" width="120" height="62" fill="rgba(160,215,255,.35)"/><rect id="dtColor" x="0" y="58" width="120" height="62" fill="${indicatorRGBA(ind,solvePH(b.s,b.spec.C,0))}"/></g>
+      <path d="M48 10 h24 v30 l34 66 q3 8 -6 8 h-80 q-9 0 -6 -8 l34 -66 z" fill="none" stroke="#2a2350" stroke-width="3" stroke-linejoin="round"/></svg></div>
+    <div class="titVol">滴下量 <b id="dtV">0.00</b> mL</div>
+    <div class="titBtns">
+      <button class="mvBtn" onclick="dojoTitAdd(2)"><b>どばっと</b><span class="mvmeta">+2.00 mL</span></button>
+      <button class="mvBtn" onclick="dojoTitAdd(0.5)"><b>少し</b><span class="mvmeta">+0.50 mL</span></button>
+      <button class="mvBtn" onclick="dojoTitAdd(0.05)"><b>1滴</b><span class="mvmeta">+0.05 mL</span></button>
+      <button class="cmdBtn titStop" onclick="dojoTitStop()">✋ ここで止める（終点）</button></div>
+    <div class="titHint">色が変わって、振り混ぜても戻らなくなったら止めよう。</div>`; }
+function dojoTitAdd(dv){ const ti=DJ&&DJ.ti; if(!ti||ti.stage!=="drip")return;
+  ti.v=Math.min(BURET_MAX*2,Math.round((ti.v+dv)*100)/100); sfx("drop"); const b=DJ.beakers[DJ.cur];
+  $id("dtColor").setAttribute("fill",indicatorRGBA(INDICATORS[ti.ind],solvePH(b.s,b.spec.C,ti.v))); $id("dtV").textContent=ti.v.toFixed(2);
+  if(ti.v>=BURET_MAX*2){toast("入れすぎ！");dojoTitStop();} }
+function dojoTitStop(){ const ti=DJ&&DJ.ti; if(!ti||ti.stage!=="drip")return; ti.stage="judged";
+  const b=DJ.beakers[DJ.cur],an=b.s,C0=b.spec.C,ind=INDICATORS[ti.ind];
+  const J=titrationJudge(an,C0,ti.ind,ti.v,0.5);
+  let why;
+  if(J.ok) why=`中和点（pH≈${J.eqPH.toFixed(1)}・${liquidity(J.eqPH)}）の近くで色が変わる指示薬を選び、誤差 ${Math.abs(J.err).toFixed(2)} mL で止められた！`;
+  else if(!J.indOK) why=`${an.name}の中和点は pH≈${J.eqPH.toFixed(1)}（${liquidity(J.eqPH)}）。${ind.name}は pH ${ind.lo}〜${ind.hi} で色が変わるので、中和点よりずっと${J.cv.begin<J.Veq?"手前":"後"}で色が変わってしまう。`;
+  else if(J.err<0) why=`指示薬は正しい！ でもまだ中和点の手前（あと約 ${(-J.err).toFixed(2)} mL）。`;
+  else why=`指示薬は正しい！ でも入れすぎ（${J.err.toFixed(2)} mL 超過）。終点が近づいたら1滴ずつ。`;
+  if(!J.ok){DJ.fails++;sfx("miss");}else sfx("super");
+  const salt=SALT_OF[b.sub],S=SALTS[salt];
+  $id("dCmd").innerHTML=`<div class="titHead">${J.ok?"🎯 終点ぴったり！":"💧 終点を外した…"}</div><canvas id="dCurve"></canvas>
+    <div class="titLegend"><span style="color:#2f6bff">━ 滴定曲線</span>　<span style="color:#ef8700">┆ 中和点 ${J.Veq.toFixed(2)} mL</span>　<span style="color:${J.ok?"#1fae58":"#ff4d5e"}">▼ あなた ${ti.v.toFixed(2)} mL</span>　<span style="color:#b25cf0">▒ 変色域</span></div>
+    <div class="note" style="margin-top:6px">${why}<br><span class="sub">この相手の濃度は ${sig2(C0)} mol/L だった（1×${sig2(C0)}×10.00 ＝ 0.10×V より V＝${J.Veq.toFixed(2)} mL）</span></div>
+    ${J.ok?`<div class="titQ">中和でできた塩は <b>${S.name} ${S.formula}</b>。この塩の水溶液は何性？</div>
+      <div class="toolRow">${["acidic","neutral","basic"].map(l=>`<button class="mvBtn" onclick="dojoPredict('${l}')"><b>${LIQ[l].name}</b></button>`).join("")}</div>`
+    :`<div style="text-align:center;margin-top:8px"><button class="startBtn" style="font-size:1em;padding:9px 26px" onclick="dojoTitStart()">もう一度（同じ相手）</button></div>`}`;
+  drawCurve($id("dCurve"),{pHat:v=>solvePH(an,C0,v),Veq:J.Veq,vmax:Math.max(J.Veq*2,ti.v+1),vStop:ti.v,band:ind,ok:J.ok});
+  log(J.ok?`🎯 ${an.name}を ${ti.v.toFixed(2)} mL で中和した！`:`💧 ${why}`);
+}
+function dojoPredict(l){ const ti=DJ&&DJ.ti; if(!ti||ti.stage!=="judged")return; ti.stage="predicted";
+  const b=DJ.beakers[DJ.cur],salt=SALT_OF[b.sub],S=SALTS[salt],ans=saltLiq(salt),ok=l===ans;
+  if(ok)DJ.predOK++;
+  let joined="";
+  if(ok&&!DJ.practice){ const F=dojoFlags(); if(!F.salts[salt]){ F.salts[salt]=true;
+      const lv=Math.max(5,dojoMe().lv-2), m=makeMon("neuto",lv,salt);
+      if(state.party.length<6)state.party.push(m); else state.box.push(m); dexAdd("neuto");
+      joined=`<br>🎉 <b>${S.formula}</b> のニュート（${LIQ[ans].name}）が仲間になった！`; toast("🎉 塩のモンスター "+S.formula+" が仲間になった！"); sfx("catch"); saveState(); } }
+  const last=DJ.cur>=DJ.beakers.length-1;
+  $id("dCmd").insertAdjacentHTML("beforeend",`<div class="note" style="margin-top:8px">${ok?"⭕ 正解！":"❌ 残念！"} ${S.formula} は ${S.acid.split(" ")[0]}（${S.acidStrong?"強酸":"弱酸"}）と ${S.base.split(" ")[0]}（${S.baseStrong?"強塩基":"弱塩基"}）からできた塩 → 水溶液は <b>${LIQ[ans].name}</b>。${joined}</div>
+    <div style="text-align:center;margin-top:8px"><button class="startBtn" style="font-size:1em;padding:9px 26px" onclick="dojoTitNext()">${last?"結果を見る":"次の相手へ ▶"}</button></div>`);
+  document.querySelectorAll("#dCmd .toolRow button").forEach(x=>x.disabled=true);
+  log(`${ok?"⭕":"❌"} ${S.formula} の水溶液は${LIQ[ans].name}`);
+}
+function dojoTitNext(){ if(!DJ)return; if(DJ.cur>=DJ.beakers.length-1){dojoFinish(true);return;} DJ.cur++; dojoTitStart(); }
+
+/* ---------- 結果 ---------- */
+function dojoFinish(win){ if(!DJ)return; DJ.phase="result"; const st=DJ.st,n=DJ.beakers.length; let stars=0;
+  if(win){ const exact=DJ.beakers.every(b=>b.n0===0||beakerState(b).exact);
+    const two=st.mode==="identify"?DJ.tests<=1:(st.mode==="seq"?DJ.pours<=n:DJ.fails===0);
+    const three=two&&(st.mode==="titrate"?DJ.predOK===n:(DJ.flips===0&&exact));
+    stars=1+(two?1:0)+(three?1:0); }
+  const F=dojoFlags(); let reward="";
+  if(win){ const m=dojoMe(); let exp=30+DJ.no*25; if(stars===3)exp=Math.round(exp*1.5); if(DJ.practice)exp=Math.round(exp/2);
+    const gold=DJ.practice?0:20*DJ.no; state.gold+=gold; grantExp(m,exp);
+    reward=`${SPECIES[m.sp].name}は ${exp} 経験値をもらった！${gold?` ✦${gold}`:""}`;
+    if(!DJ.practice){ F.stars[DJ.no]=Math.max(F.stars[DJ.no]||0,stars); if(DJ.no===5&&!F.badge){F.badge=true;reward+="<br>🏅 道場バッジを手に入れた！";} }
+    sfx("win"); } else sfx("faint");
+  saveState(); refresh();
+  const crit=st.mode==="identify"?"★2: 調べるのは1回まで（BTB を使えば1回で全部わかる）":st.mode==="seq"?"★2: 1体につき1回の注入で中和":"★2: 一度も終点を外さない";
+  const crit3=st.mode==="titrate"?"★3: 塩の性質の予想もすべて正解":"★3: 入れすぎゼロ・全部ぴったり（誤差 0.5% 以内）";
+  $id("dCmd").innerHTML=`<div class="titHead">${win?"🏆 段"+DJ.no+" クリア！":"😵 相棒が力尽きた…"}</div>
+    ${win?`<div class="stars big">${"★".repeat(stars)}<span class="off">${"★".repeat(3-stars)}</span></div>`:""}
+    <div class="note">${win?reward:"計算してから注ぐと、少ないターンで中和できる。ログで計算の内訳を見直そう。"}
+      <br><span class="sub">ターン ${DJ.turns}　注入 ${DJ.pours}回　${st.mode==="identify"?"調べた "+DJ.tests+"回　":""}入れすぎ ${DJ.flips}回${DJ.practice?"　（練習なので星はつかない）":""}</span>
+      <br><span class="sub">${crit}<br>${crit3}</span></div>
+    <div class="resBtns"><button class="actBtn" onclick="startDojo(${DJ.no},${DJ.practice})">もう一度</button>
+      <button class="actBtn" onclick="endDojo();openDojoMenu()">道場の入口へ</button><button class="miniBtn" onclick="endDojo()">フィールドへ</button></div>`;
+  log(win?`🏆 段${DJ.no}クリア！ ★${stars}`:"😵 道場で力尽きた");
+}
 
 /* ===== エンディング ===== */
 function playEnding(admin){
@@ -1358,10 +2347,10 @@ function openRegister(){$id("register").classList.add("show");renderRegister();}
 function closeRegister(){$id("register").classList.remove("show");}
 function renderRegister(){
   const entry=myTeamEntry();
-  let h=`<div class="note" style="margin-bottom:10px;">いまの手持ちを「<b style="color:var(--cyan)">${entry.name}</b>」の名前で対戦アリーナに登録します。トレーナーを倒していなくても、いつでも登録・更新できます。登録すると、同じ${cloudOn()?"クラス":"端末"}の他のトレーナーの挑戦相手になります。</div>`;
+  let h=`<div class="note" style="margin-bottom:10px;">いまの手持ちを「<b style="color:var(--cyan)">${escapeHtml(entry.name)}</b>」の名前で対戦アリーナに登録します。トレーナーを倒していなくても、いつでも登録・更新できます。登録すると、同じ${cloudOn()?"クラス":"端末"}の他のトレーナーの挑戦相手になります。</div>`;
   h+='<div class="sub" style="margin-bottom:6px;">登録される編成</div>';
   if(!state.party.length)h+='<div class="empty">手持ちがいません</div>';
-  state.party.forEach(m=>{const sp=SPECIES[m.sp];h+=`<div class="monrow"><div class="monart">${monSVG(m.sp)}</div><div class="moninfo"><div class="monname">${sp.name} <span class="tbadge" style="background:${TYPES[sp.type].color}22;border-color:${TYPES[sp.type].color};color:${TYPES[sp.type].color}">${TYPES[sp.type].name}</span></div><div class="monsub">Lv${m.lv}</div></div></div>`;});
+  state.party.forEach(m=>{const sp=SPECIES[m.sp];h+=`<div class="monrow"><div class="monart">${monSVG(m.sp)}</div><div class="moninfo"><div class="monname">${sp.name} ${typeBadge(sp.type)}</div><div class="monsub">Lv${m.lv}${m.salt?" ／ "+saltLabel(m.salt,true):""}</div></div></div>`;});
   h+=`<div style="text-align:center;margin-top:10px;"><button class="startBtn" style="font-size:14px;padding:11px 28px;" onclick="doRegister()">この編成を登録する</button></div>`;
   h+=`<div class="sub" style="text-align:center;margin-top:8px;">現在の戦績：${state.wins||0}勝 ${state.losses||0}敗　${cloudOn()?'☁ クラウド同期ON':'📴 この端末のみ（Firebase未設定）'}</div>`;
   $id("registerBody").innerHTML=h;
@@ -1386,7 +2375,7 @@ function renderVersus(){
   if(!list.length){h+='<div class="empty">まだ他のトレーナーが登録されていません。<br>📋編成登録台で自分の編成を登録すると、他の人の挑戦相手になります。</div>';}
   list.forEach((p,i)=>{
     const team=(p.team||[]).map(m=>`<span class="vteam" title="${SPECIES[m.sp]?SPECIES[m.sp].name:''} Lv${m.lv}">${SPECIES[m.sp]?monSVG(m.sp):''}<span class="vlv">${m.lv}</span></span>`).join("");
-    h+=`<div class="vrow"><div class="vhead"><span class="vname" style="color:${p.color||'#4fd8c8'}">${p.name}</span>
+    h+=`<div class="vrow"><div class="vhead"><span class="vname" style="color:${safeColor(p.color)}">${escapeHtml(p.name)}</span>
       <span class="vrec">${p.wins||0}勝 ${p.losses||0}敗 ・ 🏅${p.badges||0}</span></div>
       <div class="vteams">${team||'<span class="sub">編成なし</span>'}</div>
       <button class="actBtn vbtn" onclick="challengePlayer(${i})">挑戦</button></div>`;
@@ -1399,8 +2388,8 @@ function challengePlayer(i){
   if(!firstAlive(state.party)){toast("戦えるモンスターがいない！回復所(✚)へ");return;}
   closeVersus();
   // プレイヤー編成を相手トレーナーとして戦う（バッジ対象外・勝敗は記録）
-  const foe={id:p.id||("P_"+p.name), name:p.name, color:p.color||"#4fd8c8", player:true,
-    team:p.team, intro:(p.name+"の編成に挑戦！"), lose:"（"+p.name+"の編成を倒した！）"};
+  const foe={id:p.id||("P_"+p.name), name:safeName(p.name), color:safeColor(p.color), player:true,
+    team:sanitizeTeam(p.team), intro:(p.name+"の編成に挑戦！"), lose:"（"+p.name+"の編成を倒した！）"};
   startDialogue(p.name,foe.color,[p.name+"の編成に挑戦する！"],()=>beginTrainerBattle(foe));
 }
 
@@ -1414,14 +2403,14 @@ function renderRanking(list){
   list.slice(0,30).forEach((e,i)=>{const medal=i===0?"🥇":i===1?"🥈":i===2?"🥉":("#"+(i+1));
     const me=(e.name===state.name&&e.player);
     h+=`<div class="rankRow ${me?'me':''}"><span class="rankNo">${medal}</span>
-      <span class="rankName" style="color:${e.color||'#4fd8c8'}">${e.name}${e.cpu?' <span class="sub">(CPU)</span>':''}${me?' <span class="sub">(あなた)</span>':''}</span>
+      <span class="rankName" style="color:${safeColor(e.color)}">${escapeHtml(e.name)}${e.cpu?' <span class="sub">(CPU)</span>':''}${me?' <span class="sub">(あなた)</span>':''}</span>
       <span class="rankRec"><b>${e.wins||0}</b>勝 ${e.losses||0}敗</span></div>`;});
   h+=`<div class="sub" style="text-align:center;margin-top:8px;">${cloudOn()?'☁ クラス全体の集計':'📴 この端末の記録（Firebase未設定）'}</div>`;
   $id("rankingBody").innerHTML=h;
 }
 
 /* ===== パーティ/メニュー ===== */
-function openMenu(){if(dlg||B||$id("titlescreen").style.display!=="none")return;$id("menu").classList.add("show");switchTab("team");}
+function openMenu(){if(dlg||B||DJ||$id("titlescreen").style.display!=="none")return;$id("menu").classList.add("show");switchTab("team");}
 function closeMenu(){$id("menu").classList.remove("show");}
 function switchTab(n){document.querySelectorAll("#menu .tab").forEach(t=>t.classList.toggle("active",t.dataset.tab===n));
   document.querySelectorAll("#menu .mpanel").forEach(p=>p.classList.remove("show"));$id("mpanel-"+n).classList.add("show");renderTab(n);}
@@ -1429,14 +2418,14 @@ function renderTab(n){
   if(n==="team"){
     let h="";state.party.forEach((m,i)=>{const sp=SPECIES[m.sp];h+=`<div class="monrow">
       <div class="monart">${monSVG(m.sp)}</div>
-      <div class="moninfo"><div class="monname">${sp.name} <span class="tbadge" style="background:${TYPES[sp.type].color}22;border-color:${TYPES[sp.type].color};color:${TYPES[sp.type].color}">${TYPES[sp.type].name}</span></div>
-        <div class="monsub">Lv${m.lv} ／ HP ${m.hp}/${m.maxhp} ／ 技: ${m.moves.map(k=>MOVES[k].name).join("・")}</div>
+      <div class="moninfo"><div class="monname">${sp.name} ${typeBadge(sp.type)}</div>
+        <div class="monsub">Lv${m.lv}${m.salt?" ／ "+saltLabel(m.salt,true):""} ／ HP ${m.hp}/${m.maxhp} ／ 技: ${m.moves.map(k=>MOVES[k].name).join("・")}</div>
         <div class="xpbar"><span style="width:${m.exp/expToNext(m.lv)*100}%"></span></div></div>
       <div class="monbtns">${i>0?`<button class="miniBtn" onclick="partyUp(${i})" title="順番を上げる">▲</button>`:""}<button class="miniBtn" onclick="partyToBox(${i})" ${state.party.length<=1?'disabled':''} title="ボックスへ預ける">預ける ▼</button></div></div>`;});
     h+=`<div class="sub" style="margin:8px 0 5px;">ボックス（控え・${state.box.length}体）${state.party.length>=6?' ／ 手持ちが満員です。入れ替えるには手持ちを1体「預ける」':''}</div>`;
     if(state.box.length){
       state.box.forEach((m,i)=>{const sp=SPECIES[m.sp];h+=`<div class="monrow box"><div class="monart">${monSVG(m.sp)}</div>
-        <div class="moninfo"><div class="monname">${sp.name} <span class="tbadge" style="background:${TYPES[sp.type].color}22;border-color:${TYPES[sp.type].color};color:${TYPES[sp.type].color}">${TYPES[sp.type].name}</span></div><div class="monsub">Lv${m.lv} ／ HP ${m.hp}/${m.maxhp}</div></div>
+        <div class="moninfo"><div class="monname">${sp.name} ${typeBadge(sp.type)}</div><div class="monsub">Lv${m.lv}${m.salt?" ／ "+saltLabel(m.salt,true):""} ／ HP ${m.hp}/${m.maxhp}</div></div>
         <div class="monbtns"><button class="miniBtn" onclick="boxToParty(${i})" ${state.party.length>=6?'disabled':''} title="${state.party.length>=6?'手持ちが満員':'手持ちに入れる'}">◀ 手持ちへ</button></div></div>`;});
     } else { h+='<div class="empty" style="padding:8px;">ボックスは空です。捕まえたモンスターや、手持ちから預けた子がここに入ります。</div>'; }
     $id("mpanel-team").innerHTML=h||'<div class="empty">手持ちがいない</div>';
@@ -1446,18 +2435,18 @@ function renderTab(n){
   }
   else if(n==="dex"){
     let h='<div class="dexGrid">';Object.keys(SPECIES).forEach(k=>{const seen=state.dex.includes(k);const sp=SPECIES[k];
-      h+=`<div class="dexCard ${seen?'':'unknown'}">${monSVG(k)}<br>${seen?sp.name:"？？？"}<br><span class="sub">${seen?TYPES[sp.type].name:""}</span></div>`;});h+="</div>";
+      h+=`<div class="dexCard ${seen?'':'unknown'}">${monSVG(k)}<br>${seen?sp.name:"？？？"}<br><span class="sub">${seen?TYPES[sp.type].name+(sp.type==="neutral"?"<br>液性は個体しだい":""):""}</span></div>`;});h+="</div>";
     $id("mpanel-dex").innerHTML=h;
   }
   else if(n==="type"){
     // 相性表
-    const tks=Object.keys(TYPES);
+    const tks=Object.keys(TYPES).filter(k=>k!=="normal");
     let h='<div class="sub" style="margin-bottom:6px;">攻撃(縦) → 防御(横)。◎抜群 ×いまひとつ</div><div class="chartWrap"><table class="chart"><tr><th></th>';
     tks.forEach(d=>h+=`<th style="color:${TYPES[d].color}">${TYPES[d].name}</th>`);h+="</tr>";
     tks.forEach(a=>{h+=`<tr><th style="color:${TYPES[a].color};text-align:right">${TYPES[a].name}</th>`;
       tks.forEach(d=>{const m=typeMul(a,d);const s=m>=2?'<span class="good">◎</span>':(m<=0.5?'<span class="bad">×</span>':'・');h+=`<td>${s}</td>`;});h+="</tr>";});
     h+="</table></div>";
-    h+='<div class="note" style="margin-top:10px;">酸⇔塩基は互いに抜群（中和の主役）。中和は酸・塩基に強い。指示薬は滴定・イオンを見抜く。滴定は中和・イオンに強い。相手の属性に合う技で「効果抜群」を狙おう。</div>';
+    h+='<div class="note" style="margin-top:10px;">酸⇔塩基は互いに抜群（中和の主役）。<b>塩</b>は個体ごとに液性がちがう：酸性の塩（例 NH₄Cl）は「酸」、塩基性の塩（例 CH₃COONa）は「塩基」として相性が決まり、中性の塩（例 NaCl）は酸・塩基に等倍。中和してできた塩が中性とは限らない！ 指示薬は滴定・イオンを見抜く。滴定は中和・イオンに強い。相手の属性に合う技で「効果抜群」を狙おう。</div>';
     $id("mpanel-type").innerHTML=h;
   }
   else if(n==="note"){
@@ -1474,7 +2463,8 @@ function boxToParty(i){ if(state.party.length>=6){toast("手持ちが満員で�
 const NOTES=[
  {t:"酸と塩基",b:"酸は水に溶けて H⁺ を出す（青→赤リトマス）。塩基は OH⁻ を出す（赤→青リトマス）。強酸/強塩基は電離度が大きい。価数は出せる H⁺/OH⁻ の数。"},
  {t:"水素イオン濃度とpH",b:"pH が小さいほど酸性が強い（[H⁺]大）。中性は pH7。[H⁺]=1.0×10⁻ⁿ のとき pH=n。水のイオン積 Kw=[H⁺][OH⁻]=1.0×10⁻¹⁴。"},
- {t:"中和と塩",b:"酸 + 塩基 → 塩 + 水。ちょうど中和＝酸のH⁺の物質量＝塩基のOH⁻の物質量。塩の液性は『強い方が勝つ』（強酸+弱塩基→酸性 など）。"},
+ {t:"中和と塩",b:"酸 + 塩基 → 塩 + 水。ちょうど中和＝酸のH⁺の物質量＝塩基のOH⁻の物質量。塩の液性は元の酸・塩基の強弱で決まる：強酸＋強塩基の正塩→中性（NaCl, Na₂SO₄）、弱酸＋強塩基の塩→塩基性（CH₃COONa）、強酸＋弱塩基の塩→酸性（NH₄Cl）。中和してできた塩が中性とは限らない。"},
+ {t:"指示薬の選び方",b:"中和点のpHが変色域に入る指示薬を選ぶ。フェノールフタレイン(pH8.0〜9.8)・メチルオレンジ(pH3.1〜4.4)。強酸+強塩基→どちらも可。弱酸+強塩基→中和点は塩基性側なのでフェノールフタレイン。強酸+弱塩基→中和点は酸性側なのでメチルオレンジ。"},
  {t:"中和滴定",b:"濃度不明の酸・塩基の濃度を中和で求める。ホールピペットで量り、ビュレットで滴下、指示薬で中和点を知る。1価どうしなら (濃度×体積)酸 = (濃度×体積)塩基。"},
 ];
 
@@ -1482,14 +2472,57 @@ const NOTES=[
 const keyMap={ArrowUp:[0,-1],ArrowDown:[0,1],ArrowLeft:[-1,0],ArrowRight:[1,0],w:[0,-1],s:[0,1],a:[-1,0],d:[1,0],W:[0,-1],S:[0,1],A:[-1,0],D:[1,0]};
 document.addEventListener("keydown",e=>{if($id("titlescreen").style.display!=="none")return;
   if(e.key==="m"||e.key==="M"){e.preventDefault();$id("menu").classList.contains("show")?closeMenu():openMenu();return;}
-  if(e.key==="Escape"){closeMenu();closeShop();closeRegister();closeRanking();closeVersus();return;}
+  if(e.key==="Escape"){closeMenu();closeShop();closeRegister();closeRanking();closeVersus();closeDojoMenu();return;}
   if(e.key===" "||e.key==="Enter"){e.preventDefault();if(dlg)advanceDialogue();return;}
-  if(keyMap[e.key]){e.preventDefault();tryMove(...keyMap[e.key]);}});
+  if(keyMap[e.key]){e.preventDefault();const now=performance.now();if(e.repeat&&now-lastKeyMove<150)return;lastKeyMove=now;stopWalk();tryMove(...keyMap[e.key]);}});
+let lastKeyMove=0;
 $id("dialogue").addEventListener("click",advanceDialogue);
 $id("openMenu").onclick=openMenu;$id("closeMenu").onclick=closeMenu;$id("closeShop").onclick=closeShop;$id("bgmBtn").onclick=toggleBgm;$id("edClose").onclick=closeEnding;
-$id("closeRegister").onclick=closeRegister;$id("closeRanking").onclick=closeRanking;$id("closeVersus").onclick=closeVersus;
+$id("closeRegister").onclick=closeRegister;$id("closeDojo").onclick=closeDojoMenu;$id("closeRanking").onclick=closeRanking;$id("closeVersus").onclick=closeVersus;
 document.querySelectorAll("#menu .tab").forEach(t=>t.onclick=()=>switchTab(t.dataset.tab));
-document.querySelectorAll(".dpad button[data-d]").forEach(b=>{const m={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};b.onclick=()=>tryMove(...m[b.dataset.d]);});
+/* 十字キー: 押した瞬間に1歩、押し続けると連続移動 */
+const DIRS={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
+let holdT=null,holdBtn=null;
+function stopHold(){clearInterval(holdT);holdT=null;if(holdBtn)holdBtn.classList.remove("on");holdBtn=null;}
+document.querySelectorAll(".dpad button[data-d]").forEach(b=>{const d=DIRS[b.dataset.d];
+  b.addEventListener("pointerdown",e=>{e.preventDefault();stopWalk();stopHold();
+    if(dlg){advanceDialogue();return;}
+    holdBtn=b;b.classList.add("on");tryMove(...d);holdT=setInterval(()=>tryMove(...d),165);
+    try{b.setPointerCapture(e.pointerId);}catch(_){} });
+  ["pointerup","pointercancel","lostpointercapture"].forEach(ev=>b.addEventListener(ev,stopHold));
+  b.addEventListener("contextmenu",e=>e.preventDefault());
+});
+/* マップをタップ: その場所まで1マスずつ歩く（壁で止まる。施設やトレーナーのマスなら話しかける） */
+let walkT=null;
+function stopWalk(){clearInterval(walkT);walkT=null;}
+/* 幅優先探索で最短経路を求める。施設・出入口などの特殊マスは目的地のときだけ通る（そこへ踏み込むと調べる） */
+function findPath(tx,ty){
+  const special=(x,y)=>{const t=MAP[y][x];if("HS<>ARKVZD".includes(t))return true;
+    const rec=POS[state.area];return !!(rec.versus&&rec.versus.y===y&&(rec.versus.x===x||rec.versus.x+1===x));};
+  const free=(x,y)=>walkable(x,y)&&!special(x,y);
+  const key=(x,y)=>y*COLS+x, prev=new Map([[key(state.px,state.py),null]]), q=[[state.px,state.py]];
+  while(q.length){const [x,y]=q.shift();
+    for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=x+dx,ny=y+dy,k=key(nx,ny);
+      if(nx<0||ny<0||nx>=COLS||ny>=ROWS||prev.has(k))continue;
+      const goal=nx===tx&&ny===ty;
+      if(!goal&&!free(nx,ny))continue;
+      prev.set(k,[x,y]);
+      if(goal){const path=[];let c=[nx,ny];while(c&&!(c[0]===state.px&&c[1]===state.py)){path.unshift(c);c=prev.get(key(c[0],c[1]));}return path;}
+      q.push([nx,ny]);}}
+  return null;}
+function walkTo(tx,ty){stopWalk();stopHold();
+  const path=findPath(tx,ty); if(!path||!path.length)return;
+  const step=()=>{ if(dlg||uiOpen()||!path.length){stopWalk();return;}
+    const [nx,ny]=path.shift(),ox=state.px,oy=state.py,oa=state.area;
+    tryMove(nx-ox,ny-oy);
+    if(state.area!==oa||(state.px===ox&&state.py===oy))stopWalk(); };
+  walkT=setInterval(step,165); step(); }
+$id("viewport").addEventListener("pointerup",e=>{
+  if(e.target.closest("#dialogue")||dlg||uiOpen()||!MAP)return;
+  const r=$id("viewport").getBoundingClientRect();
+  const tx=Math.floor((e.clientX-r.left+CAM.x)/(TILE*ZOOM)),ty=Math.floor((e.clientY-r.top+CAM.y)/(TILE*ZOOM));
+  if(tx<0||ty<0||tx>=COLS||ty>=ROWS)return;
+  ensureAudio(); walkTo(tx,ty); });
 
 /* ===== トースト ===== */
 let tT;function toast(html){const t=$id("toast");t.innerHTML=html;t.classList.add("show");clearTimeout(tT);tT=setTimeout(()=>t.classList.remove("show"),2800);}
@@ -1499,17 +2532,19 @@ const STARTERS=["acidling","baseling","neuto"];
 function showStarters(){
   const box=$id("starterChoices");box.innerHTML="";
   STARTERS.forEach(k=>{const sp=SPECIES[k];const d=document.createElement("button");d.className="starterCard";
-    d.innerHTML=`<div class="scart">${monSVG(k)}</div><div class="scname">${sp.name}</div><div class="sctype" style="color:${TYPES[sp.type].color}">${TYPES[sp.type].name}タイプ</div>`;
+    d.style.setProperty("--tc",TYPES[sp.type].color);d.innerHTML=`<div class="scart">${monSVG(k)}</div><div class="scname">${sp.name}</div><div class="sctype">${typeBadge(sp.type)}</div>`;
     d.onclick=()=>pickStarter(k);box.appendChild(d);});
 }
 function pickStarter(k){
-  state.party=[makeMon(k,5)];dexAdd(k);state.started=true;
+  state.party=[makeMon(k,5,"NaCl")];dexAdd(k);state.started=true;
   $id("starterModal").classList.remove("show");
   startGame();
   startDialogue("博士の助手 ミオ","#4fd8c8",[
     "いい相棒を選んだね！ ここは酸と塩基のモンスターが暮らす世界。",
     "草むら(緑)を歩くと野生モンスターに出会える。技を選ぶと化学の問題が出て、正解で攻撃できるよ。",
     "相手の属性に強い技だと『効果抜群』。連続正解でコンボも乗る。弱らせて🔮ボールで仲間にもできる。",
+    "塩タイプは、どの酸とどの塩基からできたかで液性（酸性・中性・塩基性）が変わるよ。相手の化学式をよく見て技を選んでね！",
+    "酸・塩基タイプは🔮ボールを使うと『中和滴定』で捕獲するよ。指示薬選びと、終点で止めるのがコツ！",
     "右の▶から次のエリアへ、✚マスで回復。『対戦アリーナ』ではトレーナーに挑戦してバッジを集めよう！",
     "最後は酸塩基博士サワーが待つ。勝てば、あなたの編成はアリーナに登録されてクラスの誰かの挑戦相手になる。いってらっしゃい！"
   ]);
@@ -1521,9 +2556,18 @@ function startGame(){
   place("player",state.px,state.py);camera();refresh();drawMinimap();playMusic("field");saveState();
 }
 function applySave(sv){
-  state=freshState(sv.name);Object.assign(state,sv);
-  state.bag=state.bag||{ball:5,potion:3,bigpotion:0};state.party=state.party||[];
-  state.wins=state.wins||0;state.losses=state.losses||0;
+  state=freshState(safeName(sv.name));Object.assign(state,sv);state.name=safeName(sv.name);
+  state.bag=state.bag||{ball:5,potion:3,bigpotion:0};
+  ["ball","potion","bigpotion"].forEach(k=>state.bag[k]=safeInt(state.bag[k],0,999,0));
+  state.party=(Array.isArray(state.party)?state.party:[]).map(sanitizeMon).filter(Boolean).slice(0,6);
+  state.box=(Array.isArray(state.box)?state.box:[]).map(sanitizeMon).filter(Boolean);
+  state.dex=(Array.isArray(state.dex)?state.dex:[]).filter(k=>Object.prototype.hasOwnProperty.call(SPECIES,k));
+  state.gold=safeInt(state.gold,0,1e7,0); state.area=safeInt(state.area,0,3,0);
+  state.flags=(state.flags&&typeof state.flags==="object")?state.flags:{};
+  const tids=[...TRAINERS.map(t=>t.id),ADMIN_TRAINER.id];
+  state.badges=(Array.isArray(state.badges)?state.badges:[]).filter(k=>tids.includes(k));
+  state.beaten=(Array.isArray(state.beaten)?state.beaten:[]).filter(k=>tids.includes(k));
+  state.wins=safeInt(state.wins,0,1e6,0);state.losses=safeInt(state.losses,0,1e6,0);
 }
 function newGame(){ const nm=($id("nameInput").value||"").trim().slice(0,8);
   if(!nm){toast("トレーナー名を入力してください");return;}
@@ -1531,7 +2575,7 @@ function newGame(){ const nm=($id("nameInput").value||"").trim().slice(0,8);
   const local=loadSaveByName(nm);
   const begin=(cloudSv)=>{
     const sv=cloudSv||local;
-    if(sv&&sv.party&&sv.party.length){ applySave(sv); toast("『"+nm+"』の続きから再開します"); startGame(); }
+    if(sv&&sv.party&&sv.party.length){ applySave(sv); toast("『"+escapeHtml(nm)+"』の続きから再開します"); startGame(); }
     else { state=freshState(nm); $id("starterModal").classList.add("show"); showStarters(); }
   };
   if(cloudOn()){ fetchCloudSave(nm,begin); } else { begin(null); }
@@ -1557,5 +2601,6 @@ function init(){
 init();
 
 </script>
-</body>
-</html>
+
+
+</body></html>
